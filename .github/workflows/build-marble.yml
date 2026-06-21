@@ -114,6 +114,7 @@ jobs:
       BUILD_SCOPE: ${{ inputs.build_scope }}
       KERNEL_DIR: kernel-source
       CCACHE_DIR: /home/runner/.ccache
+      ANDROID_CLANG_BIN: ${{ github.workspace }}/android-clang/clang-r416183b/bin
 
     steps:
       - name: Checkout builder
@@ -147,6 +148,14 @@ jobs:
             bc bison build-essential ccache cpio curl flex git jq kmod libelf-dev \
             libncurses-dev libssl-dev lld llvm clang python3 python-is-python3 \
             rsync unzip zip zstd
+
+      - name: Fetch Android kernel clang
+        run: |
+          source config/marble.env
+          git clone --depth=1 --filter=blob:none --sparse --branch "${ANDROID_CLANG_REF}" "${ANDROID_CLANG_REPO}" android-clang
+          git -C android-clang sparse-checkout set "${ANDROID_CLANG_VERSION}"
+          test -x "${ANDROID_CLANG_BIN}/clang"
+          "${ANDROID_CLANG_BIN}/clang" --version
 
       - name: Restore ccache
         if: ${{ inputs.enable_ccache }}

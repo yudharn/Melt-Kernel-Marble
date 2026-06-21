@@ -62,6 +62,7 @@ Checked on 2026-06-22.
 | KernelSU-Next | `dev` | latest release `v3.2.0` |
 | SukiSU Ultra | `main` | latest release `v4.1.3` |
 | ReSukiSU | `main` | no release found |
+| Android kernel Clang | `clang-r416183b` | declared by `build.config.common` |
 
 ## Safe Build Order
 
