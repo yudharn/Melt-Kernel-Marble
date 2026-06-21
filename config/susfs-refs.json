@@ -1,0 +1,14 @@
+{
+  "gki-android12-5.10": {
+    "v2.2.0": {
+      "ref": "gki-android12-5.10",
+      "commit": "aee962343bc49469a5427a0e6987e6a70fe88ba3",
+      "notes": "Current branch head checked on 2026-06-22."
+    },
+    "v2.1.0": {
+      "ref": "8c79dcaa5e73bc33a33ff3af24c5db4eca8b6b0c",
+      "commit": "8c79dcaa5e73bc33a33ff3af24c5db4eca8b6b0c",
+      "notes": "Commit on gki-android12-5.10 whose susfs.h reports v2.1.0."
+    }
+  }
+}

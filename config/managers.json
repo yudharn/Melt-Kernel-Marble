@@ -1,0 +1,50 @@
+{
+  "none": {
+    "display": "No manager",
+    "repo": "",
+    "default_ref": "",
+    "setup_path": "",
+    "status": "stable",
+    "notes": "Plain kernel build with no root manager source integration."
+  },
+  "kernelsu": {
+    "display": "KernelSU",
+    "repo": "tiann/KernelSU",
+    "default_ref": "main",
+    "setup_path": "kernel/setup.sh",
+    "status": "stable-first-test",
+    "notes": "Official KernelSU. Latest release checked on 2026-06-22: v3.2.4."
+  },
+  "kernelsu-next": {
+    "display": "KernelSU-Next",
+    "repo": "KernelSU-Next/KernelSU-Next",
+    "default_ref": "dev",
+    "setup_path": "kernel/setup.sh",
+    "status": "experimental-source",
+    "notes": "Default branch is dev. Latest release checked on 2026-06-22: v3.2.0."
+  },
+  "sukisu-ultra": {
+    "display": "SukiSU Ultra",
+    "repo": "SukiSU-Ultra/SukiSU-Ultra",
+    "default_ref": "main",
+    "setup_path": "kernel/setup.sh",
+    "status": "experimental-source",
+    "notes": "Latest release checked on 2026-06-22: v4.1.3."
+  },
+  "resukisu": {
+    "display": "ReSukiSU",
+    "repo": "ReSukiSU/ReSukiSU",
+    "default_ref": "main",
+    "setup_path": "kernel/setup.sh",
+    "status": "experimental-source",
+    "notes": "No GitHub release found on 2026-06-22; setup script exists."
+  },
+  "custom": {
+    "display": "Custom manager",
+    "repo": "",
+    "default_ref": "",
+    "setup_path": "kernel/setup.sh",
+    "status": "advanced",
+    "notes": "Uses custom_manager_repo, custom_manager_ref, and custom_setup_path workflow inputs."
+  }
+}
