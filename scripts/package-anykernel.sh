@@ -16,12 +16,50 @@ if [[ ! -s "${image_path}" ]]; then
   exit 1
 fi
 
-variant="${MANAGER}"
-if [[ "${ENABLE_SUSFS}" == "true" ]]; then
-  variant="${variant}-susfs"
+if [[ -f release/resolved-refs.env ]]; then
+  source release/resolved-refs.env
 fi
 
-zip_name="Marble-${variant}-${BUILD_SCOPE}-dev-${run_number}.zip"
+manager_label="${MANAGER}"
+case "${MANAGER}" in
+  none) manager_label="NoRoot" ;;
+  kernelsu) manager_label="KernelSU" ;;
+  kernelsu-next) manager_label="KSUNext" ;;
+  kernelsu-next-susfs) manager_label="KSUNext" ;;
+  sukisu-ultra) manager_label="SukiSUUltra" ;;
+  resukisu) manager_label="ReSukiSU" ;;
+  custom)
+    if [[ "${manager_repo:-}" == *"KernelSU-Next"* ]]; then
+      manager_label="KSUNext"
+    elif [[ "${manager_repo:-}" == *"SukiSU"* ]]; then
+      manager_label="SukiSUUltra"
+    elif [[ "${manager_repo:-}" == *"ReSukiSU"* ]]; then
+      manager_label="ReSukiSU"
+    else
+      manager_label="Custom"
+    fi
+    ;;
+esac
+
+manager_ref_label="${manager_ref:-${MANAGER_REF:-none}}"
+manager_ref_label="$(echo "${manager_ref_label}" | sed -E 's/[^A-Za-z0-9._-]+/-/g')"
+if [[ "${manager_ref_label}" =~ ^[0-9a-fA-F]{40}$ ]]; then
+  manager_ref_label="${manager_ref_label:0:7}"
+fi
+manager_short="${manager_commit:-none}"
+manager_short="${manager_short:0:7}"
+
+susfs_label="NoSUSFS"
+susfs_short="none"
+if [[ "${ENABLE_SUSFS}" == "true" ]]; then
+  susfs_label="SuSFS-${susfs_reported_version:-${SUSFS_VERSION:-unknown}}"
+  susfs_short="${susfs_commit:-unknown}"
+  susfs_short="${susfs_short:0:7}"
+fi
+
+build_date="${BUILD_DATE:-$(date -u +%Y%m%d)}"
+
+zip_name="AK3_Marble_android12-5.10_${manager_label}-${manager_ref_label}_${manager_short}_${susfs_label}_${susfs_short}_${build_date}_r${run_number}.zip"
 work_dir="$(mktemp -d)"
 git clone --depth=1 "${ANYKERNEL3_REPO}" "${work_dir}/ak3"
 rsync -a ak3/ "${work_dir}/ak3/"
@@ -34,6 +72,7 @@ popd >/dev/null
 pushd "${release_dir}" >/dev/null
 sha256sum "${zip_name}" > "${zip_name}.sha256"
 printf 'zip_name=%s\n' "${zip_name}" > zip-name.env
+printf 'zip_sha256=%s\n' "$(sha256sum "${zip_name}" | awk '{print $1}')" >> zip-name.env
 popd >/dev/null
 
 rm -rf "${work_dir}"

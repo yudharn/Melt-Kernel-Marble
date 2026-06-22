@@ -16,7 +16,7 @@ CUSTOM_MANAGER_REF="${CUSTOM_MANAGER_REF:-}"
 CUSTOM_SETUP_PATH="${CUSTOM_SETUP_PATH:-kernel/setup.sh}"
 
 case "${MANAGER}" in
-  none|kernelsu|kernelsu-next|sukisu-ultra|resukisu|custom) ;;
+  none|kernelsu|kernelsu-next|kernelsu-next-susfs|sukisu-ultra|resukisu|custom) ;;
   *) echo "::error::Unsupported manager: ${MANAGER}"; exit 1 ;;
 esac
 
@@ -42,6 +42,11 @@ fi
 
 if [[ "${ENABLE_SUSFS}" == "true" && "${MANAGER}" == "none" ]]; then
   echo "::error::SUSFS requires a manager. Choose kernelsu, kernelsu-next, sukisu-ultra, resukisu, or custom."
+  exit 1
+fi
+
+if [[ "${MANAGER}" == "kernelsu-next-susfs" && "${ENABLE_SUSFS}" != "true" ]]; then
+  echo "::error::kernelsu-next-susfs preset requires ENABLE_SUSFS=true. Use kernelsu-next for non-SUSFS builds."
   exit 1
 fi
 

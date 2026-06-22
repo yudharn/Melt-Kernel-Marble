@@ -52,6 +52,16 @@ if [[ ! -s "${image_path}" ]]; then
   exit 1
 fi
 
+image_size="$(stat -c%s "${image_path}")"
+if [[ "${image_size}" -lt 5000000 ]]; then
+  echo "::error::Built Image is unexpectedly small: ${image_size} bytes"
+  exit 1
+fi
+
+if command -v file >/dev/null 2>&1; then
+  file "${image_path}" | tee -a "${RELEASE_DIR}/build.log"
+fi
+
 cp "${image_path}" "${RELEASE_DIR}/Image"
 for file in System.map vmlinux; do
   if [[ -s "${OUT_DIR}/${file}" ]]; then
@@ -69,7 +79,7 @@ if [[ "${BUILD_SCOPE}" == "full" ]]; then
 fi
 
 if command -v ccache >/dev/null 2>&1; then
-  ccache -s || true
+  ccache -s | tee "${RELEASE_DIR}/ccache-stats.txt" || true
 fi
 
 popd >/dev/null

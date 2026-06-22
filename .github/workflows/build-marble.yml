@@ -20,6 +20,7 @@ on:
           - none
           - kernelsu
           - kernelsu-next
+          - kernelsu-next-susfs
           - sukisu-ultra
           - resukisu
           - custom
@@ -156,12 +157,23 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             bc bison build-essential ccache cpio curl flex git jq kmod libelf-dev \
-            libncurses-dev libssl-dev lld llvm clang python3 python-is-python3 \
+            libncurses-dev libssl-dev lld llvm clang file python3 python-is-python3 \
             rsync unzip zip zstd
+
+      - name: Restore Android kernel clang
+        id: android-clang-cache
+        uses: actions/cache@v4
+        with:
+          path: android-clang
+          key: marble-builder-android-clang-clang-r416183b
 
       - name: Fetch Android kernel clang
         run: |
           source config/marble.env
+          if [[ -x "${ANDROID_CLANG_BIN}/clang" ]]; then
+            "${ANDROID_CLANG_BIN}/clang" --version
+            exit 0
+          fi
           mkdir -p "android-clang/${ANDROID_CLANG_VERSION}"
           curl -fsSL "${ANDROID_CLANG_ARCHIVE_URL}" | tar -xz -C "android-clang/${ANDROID_CLANG_VERSION}"
           test -x "${ANDROID_CLANG_BIN}/clang"
@@ -173,8 +185,9 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: marble-builder-ccache-${{ runner.os }}-${{ inputs.source_ref }}-${{ github.sha }}
+          key: marble-builder-ccache-${{ runner.os }}-${{ inputs.source_ref }}-${{ inputs.manager }}-${{ inputs.manager_ref }}-${{ inputs.enable_susfs }}-${{ inputs.susfs_version }}-${{ inputs.build_scope }}
           restore-keys: |
+            marble-builder-ccache-${{ runner.os }}-${{ inputs.source_ref }}-${{ inputs.manager }}-
             marble-builder-ccache-${{ runner.os }}-${{ inputs.source_ref }}-
             marble-builder-ccache-${{ runner.os }}-
 
@@ -204,6 +217,14 @@ jobs:
             cat kernel-source/release/resolved-refs.env
           } > kernel-source/release/build-info.txt
 
+      - name: Audit flashable zip
+        run: bash scripts/audit-flashable-zip.sh
+
+      - name: Generate build summary
+        run: |
+          bash scripts/generate-build-summary.sh
+          cat kernel-source/release/summary.md >> "$GITHUB_STEP_SUMMARY"
+
       - name: Upload flashable artifact
         uses: actions/upload-artifact@v4
         with:
@@ -213,6 +234,9 @@ jobs:
             kernel-source/release/*.zip
             kernel-source/release/*.zip.sha256
             kernel-source/release/build-info.txt
+            kernel-source/release/summary.md
+            kernel-source/release/zip-audit.txt
+            kernel-source/release/ccache-stats.txt
 
       - name: Upload debug artifacts
         if: ${{ !cancelled() && (inputs.debug_artifacts || failure()) }}
@@ -229,7 +253,7 @@ jobs:
             kernel-source/release/build.log
 
       - name: Save ccache
-        if: ${{ inputs.enable_ccache && always() && steps.ccache-restore.outputs.cache-hit != 'true' }}
+        if: ${{ inputs.enable_ccache && success() && steps.ccache-restore.outputs.cache-hit != 'true' }}
         uses: actions/cache/save@v4
         with:
           path: ${{ env.CCACHE_DIR }}
@@ -244,12 +268,7 @@ jobs:
             suffix="${suffix}-susfs"
           fi
           tag="marble-${suffix}-${GITHUB_RUN_NUMBER}"
-          notes="Built from ${SOURCE_REPO}@${SOURCE_REF}
-
-          Workflow: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
-
-          See build-info.txt inside the artifact for exact commits."
           gh release create "${tag}" kernel-source/release/*.zip kernel-source/release/*.sha256 kernel-source/release/build-info.txt \
             --draft \
             --title "${tag}" \
-            --notes "${notes}"
+            --notes-file kernel-source/release/summary.md

@@ -59,7 +59,9 @@ manager_patch="${patch_root}/KernelSU/10_enable_susfs_for_ksu.patch"
 apply_manager_patch="${SUSFS_MANAGER_PATCH}"
 if [[ "${apply_manager_patch}" == "auto" ]]; then
   apply_manager_patch="force"
-  if [[ "${manager_ref,,}" == *susfs* ]]; then
+  if [[ "${MANAGER:-}" == "kernelsu-next-susfs" ||
+        "${manager_ref,,}" == *susfs* ||
+        "${manager_repo:-}" == "pershoot/KernelSU-Next" ]]; then
     apply_manager_patch="skip"
   fi
 fi

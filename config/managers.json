@@ -23,6 +23,14 @@
     "status": "experimental-source",
     "notes": "Default branch is dev. Latest release checked on 2026-06-22: v3.2.0."
   },
+  "kernelsu-next-susfs": {
+    "display": "KernelSU-Next SUSFS preset",
+    "repo": "pershoot/KernelSU-Next",
+    "default_ref": "5a8a604a9078c2fbfb50e2b0cba87b3a6f4da1c2",
+    "setup_path": "kernel/setup.sh",
+    "status": "susfs-ci-proven",
+    "notes": "Pinned pershoot dev-susfs commit proven by Marble CI run 16 with SUSFS v2.1.0. Use for KernelSU-Next + SUSFS builds."
+  },
   "sukisu-ultra": {
     "display": "SukiSU Ultra",
     "repo": "SukiSU-Ultra/SukiSU-Ultra",
