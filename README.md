@@ -59,7 +59,7 @@ Checked on 2026-06-22.
 
 | Component | Default | Version |
 |---|---|---|
-| SUSFS default | `gki-android12-5.10` | `v2.2.0` |
+| SUSFS default | `4003ecf2d01c6d13fa8edf6c4f2607365738dc3d` | pinned `v2.2.0` for `gki-android12-5.10` |
 | SUSFS older preset | `86114db0c49f20fa7857b8b559f3ab87cbc2d00d` | `v2.1.0`, WildKernels GKI r4 gki-android12-5.10 pin |
 | KernelSU | official `tiann/KernelSU@main` | SUSFS disabled until an official compatible integration exists |
 | KernelSU-Next | official `dev` / `legacy-susfs` | SUSFS automatically selects `legacy-susfs` |

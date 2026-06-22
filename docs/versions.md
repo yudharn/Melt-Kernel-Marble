@@ -6,7 +6,7 @@ Checked on 2026-06-22.
 |---|---|---|---|
 | Kernel source | `Pzqqt/android_kernel_xiaomi_marble` | `melt-rebase` | Poco F5 / marble source |
 | Android kernel Clang | `https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86` | `master-kernel-build-2021` | `clang-r416183b`, matching `build.config.common` |
-| SUSFS | `https://gitlab.com/simonpunk/susfs4ksu.git` | `gki-android12-5.10` | `SUSFS_VERSION v2.2.0`, commit `aee962343bc49469a5427a0e6987e6a70fe88ba3` |
+| SUSFS | `https://gitlab.com/simonpunk/susfs4ksu.git` | commit `4003ecf2d01c6d13fa8edf6c4f2607365738dc3d` | `SUSFS_VERSION v2.2.0`; CI-proven with official SukiSU Ultra and ReSukiSU |
 | SUSFS older preset | `https://gitlab.com/simonpunk/susfs4ksu.git` | commit `86114db0c49f20fa7857b8b559f3ab87cbc2d00d` | `SUSFS_VERSION v2.1.0`; WildKernels GKI r4 gki-android12-5.10 pin |
 | KernelSU | `tiann/KernelSU` | `main` | Official source; non-SUSFS builds only |
 | KernelSU-Next | `KernelSU-Next/KernelSU-Next` | `dev` | Official non-SUSFS ref |

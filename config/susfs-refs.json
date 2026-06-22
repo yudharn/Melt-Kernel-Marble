@@ -1,9 +1,9 @@
 {
   "gki-android12-5.10": {
     "v2.2.0": {
-      "ref": "gki-android12-5.10",
-      "commit": "aee962343bc49469a5427a0e6987e6a70fe88ba3",
-      "notes": "Current branch head checked on 2026-06-22."
+      "ref": "4003ecf2d01c6d13fa8edf6c4f2607365738dc3d",
+      "commit": "4003ecf2d01c6d13fa8edf6c4f2607365738dc3d",
+      "notes": "Pinned commit proven by Marble CI with official SukiSU Ultra and ReSukiSU on 2026-06-22."
     },
     "v2.1.0": {
       "ref": "86114db0c49f20fa7857b8b559f3ab87cbc2d00d",
