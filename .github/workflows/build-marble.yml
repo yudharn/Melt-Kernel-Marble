@@ -75,6 +75,11 @@ on:
         required: true
         type: boolean
         default: false
+      experimental_ksunext_dev_susfs:
+        description: Try official KernelSU-Next dev with experimental SUSFS manager patch
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   actions: read
@@ -96,6 +101,7 @@ jobs:
       SUSFS_REF: ${{ inputs.susfs_ref }}
       SUSFS_EXPECTED_VERSION: ${{ inputs.susfs_expected_version }}
       BUILD_SCOPE: ${{ inputs.build_scope }}
+      EXPERIMENTAL_KSUNEXT_DEV_SUSFS: ${{ inputs.experimental_ksunext_dev_susfs }}
       KERNEL_DIR: kernel-source
       CCACHE_DIR: /home/runner/.ccache
       ANDROID_CLANG_BIN: ${{ github.workspace }}/android-clang/clang-r416183b/bin

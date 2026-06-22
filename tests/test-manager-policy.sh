@@ -69,6 +69,13 @@ expect_validation_failure kernelsu true
 expect_validation_success none false
 expect_validation_success kernelsu false
 expect_validation_failure kernelsu-next true
+SOURCE_REPO=owner/repo \
+SOURCE_REF=main \
+MANAGER=kernelsu-next \
+MANAGER_REF=dev \
+ENABLE_SUSFS=true \
+EXPERIMENTAL_KSUNEXT_DEV_SUSFS=true \
+bash scripts/validate-inputs.sh >/dev/null
 expect_validation_success sukisu-ultra true
 expect_validation_success resukisu true
 
