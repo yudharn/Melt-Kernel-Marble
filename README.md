@@ -57,7 +57,7 @@ Checked on 2026-06-22.
 | Component | Default | Version |
 |---|---|---|
 | SUSFS default | `gki-android12-5.10` | `v2.2.0` |
-| SUSFS older preset | `8c79dcaa5e73bc33a33ff3af24c5db4eca8b6b0c` | `v2.1.0` |
+| SUSFS older preset | `86114db0c49f20fa7857b8b559f3ab87cbc2d00d` | `v2.1.0`, WildKernels GKI r4 gki-android12-5.10 pin |
 | KernelSU | `main` | latest release `v3.2.4` |
 | KernelSU-Next | `dev` | latest release `v3.2.0` |
 | SukiSU Ultra | `main` | latest release `v4.1.3` |
@@ -72,6 +72,8 @@ Checked on 2026-06-22.
 4. `manager=kernelsu-next`, `enable_susfs=false`, `build_scope=image-only`
 5. `manager=sukisu-ultra`, `enable_susfs=false`, `build_scope=image-only`
 6. Add `enable_susfs=true` only after the matching manager build succeeds.
+
+For the WildKernels GKI r4 style combo, use `manager=custom`, `custom_manager_repo=pershoot/KernelSU-Next`, `custom_manager_ref=f1b64f440f3cd170e2a86d7816bef26fbdee1caa`, `custom_setup_path=kernel/setup.sh`, `enable_susfs=true`, and `susfs_version=v2.1.0`.
 
 ## Flashing Warning
 

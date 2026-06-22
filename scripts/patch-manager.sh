@@ -20,5 +20,17 @@ pushd "${KERNEL_DIR}" >/dev/null
 setup_url="https://raw.githubusercontent.com/${manager_repo}/${manager_commit}/${manager_setup_path}"
 echo "Applying ${MANAGER} from ${manager_repo}@${manager_commit}"
 curl -fsSL "${setup_url}" -o /tmp/manager-setup.sh
+
+manager_owner="${manager_repo%%/*}"
+manager_name="${manager_repo#*/}"
+if grep -q '^OWNER="KernelSU-Next"$' /tmp/manager-setup.sh &&
+   grep -q '^REPO="$OWNER"$' /tmp/manager-setup.sh &&
+   [[ "${manager_repo}" != "KernelSU-Next/KernelSU-Next" ]]; then
+  sed -i \
+    -e "s/^OWNER=\"KernelSU-Next\"$/OWNER=\"${manager_owner}\"/" \
+    -e "s/^REPO=\"\$OWNER\"$/REPO=\"${manager_name}\"/" \
+    /tmp/manager-setup.sh
+fi
+
 bash /tmp/manager-setup.sh "${manager_ref}"
 popd >/dev/null

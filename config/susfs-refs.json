@@ -6,9 +6,9 @@
       "notes": "Current branch head checked on 2026-06-22."
     },
     "v2.1.0": {
-      "ref": "8c79dcaa5e73bc33a33ff3af24c5db4eca8b6b0c",
-      "commit": "8c79dcaa5e73bc33a33ff3af24c5db4eca8b6b0c",
-      "notes": "Commit on gki-android12-5.10 whose susfs.h reports v2.1.0."
+      "ref": "86114db0c49f20fa7857b8b559f3ab87cbc2d00d",
+      "commit": "86114db0c49f20fa7857b8b559f3ab87cbc2d00d",
+      "notes": "WildKernels GKI r4 gki-android12-5.10 commit; susfs.h reports v2.1.0."
     }
   }
 }
