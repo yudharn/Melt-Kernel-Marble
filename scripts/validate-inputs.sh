@@ -11,7 +11,6 @@ SUSFS_KERNEL_BRANCH="${SUSFS_KERNEL_BRANCH:-gki-android12-5.10}"
 SUSFS_REF="${SUSFS_REF:-}"
 SUSFS_EXPECTED_VERSION="${SUSFS_EXPECTED_VERSION:-}"
 MANAGER_REF="${MANAGER_REF:-}"
-EXPERIMENTAL_KSUNEXT_DEV_SUSFS="${EXPERIMENTAL_KSUNEXT_DEV_SUSFS:-false}"
 
 case "${MANAGER}" in
   none|kernelsu|kernelsu-next|sukisu-ultra|resukisu) ;;
@@ -21,11 +20,6 @@ esac
 case "${ENABLE_SUSFS}" in
   true|false) ;;
   *) echo "::error::ENABLE_SUSFS must be true or false, got ${ENABLE_SUSFS}"; exit 1 ;;
-esac
-
-case "${EXPERIMENTAL_KSUNEXT_DEV_SUSFS}" in
-  true|false) ;;
-  *) echo "::error::EXPERIMENTAL_KSUNEXT_DEV_SUSFS must be true or false, got ${EXPERIMENTAL_KSUNEXT_DEV_SUSFS}"; exit 1 ;;
 esac
 
 case "${BUILD_SCOPE}" in
@@ -60,11 +54,7 @@ if [[ "${ENABLE_SUSFS}" == "true" ]]; then
       exit 1
       ;;
     kernelsu-next)
-      if [[ "${EXPERIMENTAL_KSUNEXT_DEV_SUSFS}" != "true" ]]; then
-        echo "::error::Official KernelSU-Next + SUSFS is experimental on Marble. Set EXPERIMENTAL_KSUNEXT_DEV_SUSFS=true to test the official dev branch."
-        exit 1
-      fi
-      [[ -z "${MANAGER_REF}" || "${MANAGER_REF}" == "dev" ]] || { echo "::error::Experimental KernelSU-Next + SUSFS only allows official dev ref"; exit 1; }
+      [[ -z "${MANAGER_REF}" || "${MANAGER_REF}" == "dev-susfs" ]] || { echo "::error::KernelSU-Next + SUSFS requires pershoot dev-susfs ref"; exit 1; }
       ;;
     sukisu-ultra)
       [[ -z "${MANAGER_REF}" || "${MANAGER_REF}" == "builtin" ]] || { echo "::error::SukiSU Ultra + SUSFS requires official ref builtin"; exit 1; }

@@ -20,10 +20,11 @@
     "display": "KernelSU-Next",
     "repo": "KernelSU-Next/KernelSU-Next",
     "default_ref": "dev",
-    "susfs_ref": "",
+    "susfs_repo": "pershoot/KernelSU-Next",
+    "susfs_ref": "dev-susfs",
     "setup_path": "kernel/setup.sh",
-    "status": "official",
-    "notes": "Official dev branch. SUSFS is disabled because the official legacy-susfs branch does not link successfully with the Marble kernel."
+    "status": "official-default-forked-susfs",
+    "notes": "Official dev branch for non-SUSFS builds. SUSFS builds use pershoot/KernelSU-Next@dev-susfs, a fork branch based on official dev with SUSFS integration."
   },
   "sukisu-ultra": {
     "display": "SukiSU Ultra",

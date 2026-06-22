@@ -3,7 +3,6 @@ set -euo pipefail
 
 KERNEL_DIR="${KERNEL_DIR:-kernel-source}"
 ENABLE_SUSFS="${ENABLE_SUSFS:-false}"
-EXPERIMENTAL_KSUNEXT_DEV_SUSFS="${EXPERIMENTAL_KSUNEXT_DEV_SUSFS:-false}"
 
 if [[ "${ENABLE_SUSFS}" != "true" ]]; then
   echo "SUSFS disabled"
@@ -55,24 +54,6 @@ done
 if [[ -z "${manager_kconfig}" ]]; then
   echo "::error::Could not find manager source directory for SUSFS integration"
   exit 1
-fi
-
-if ! grep -q '^config KSU_SUSFS$' "${manager_kconfig}"; then
-  if [[ "${manager}" == "kernelsu-next" && "${EXPERIMENTAL_KSUNEXT_DEV_SUSFS}" == "true" ]]; then
-    manager_patch="${patch_root}/KernelSU/10_enable_susfs_for_ksu.patch"
-    if [[ ! -f "${manager_patch}" ]]; then
-      echo "::error::Missing SUSFS manager patch: ${manager_patch}"
-      exit 1
-    fi
-    echo "Attempting experimental manager-side SUSFS patch on official ${manager_repo}@${manager_ref}"
-    if git -C "${manager_dir}" apply --check "${manager_patch}"; then
-      git -C "${manager_dir}" apply "${manager_patch}"
-      manager_kconfig="${manager_dir}/kernel/Kconfig"
-    else
-      echo "::error::Experimental KernelSU-Next dev SUSFS manager patch does not apply cleanly"
-      exit 1
-    fi
-  fi
 fi
 
 if ! grep -q '^config KSU_SUSFS$' "${manager_kconfig}"; then

@@ -27,6 +27,10 @@ if [[ "${MANAGER}" != "none" ]]; then
   manager_repo="$(jq -r --arg manager "${MANAGER}" '.[$manager].repo' config/managers.json)"
   manager_default_ref="$(jq -r --arg manager "${MANAGER}" '.[$manager].default_ref' config/managers.json)"
   if [[ "${ENABLE_SUSFS}" == "true" ]]; then
+    manager_susfs_repo="$(jq -r --arg manager "${MANAGER}" '.[$manager].susfs_repo // empty' config/managers.json)"
+    if [[ -n "${manager_susfs_repo}" ]]; then
+      manager_repo="${manager_susfs_repo}"
+    fi
     manager_default_ref="$(jq -r --arg manager "${MANAGER}" '.[$manager].susfs_ref' config/managers.json)"
   fi
   manager_effective_ref="${MANAGER_REF:-${manager_default_ref}}"
