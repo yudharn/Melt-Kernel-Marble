@@ -8,6 +8,7 @@ Verified on 2026-06-22 from builder commit `0a842ae`.
 |---|---|---:|---|---|
 | KernelSU | `tiann/KernelSU@fda952bffe54c52d63f210358d47610cd9175cea` | off | `27933596271` | build, package, audit, artifact upload passed |
 | KernelSU-Next | `KernelSU-Next/KernelSU-Next@30802e7260e2387176b9301377e88fc6fb0356b7` | off | `27933596110` | build, package, audit, artifact upload passed |
+| KernelSU-Next | `pershoot/KernelSU-Next@5a8a604a9078c2fbfb50e2b0cba87b3a6f4da1c2` | v2.2.0 | `27937351021` | build, package, audit, artifact upload passed |
 | SukiSU Ultra | `SukiSU-Ultra/SukiSU-Ultra@b88403d2561b6e00dff84a3c851e630c62f57fd0` | v2.2.0 | `27933596022` | build, package, audit, artifact upload passed |
 | ReSukiSU | `ReSukiSU/ReSukiSU@8147c167a07ff2a3368ff31b790ad800a0d85211` | v2.2.0 | `27933596047` | build, package, audit, artifact upload passed |
 | SukiSU Ultra | `SukiSU-Ultra/SukiSU-Ultra@b88403d2561b6e00dff84a3c851e630c62f57fd0` | v2.1.0 | `27934105424` | version selection, build, package, and audit passed |
@@ -19,9 +20,9 @@ SUSFS v2.2.0 is pinned to `4003ecf2d01c6d13fa8edf6c4f2607365738dc3d`. SUSFS v2.1
 | Manager | SUSFS | CI run | Result |
 |---|---:|---|---|
 | KernelSU | v2.2.0 | `27933596089` | rejected during input validation |
-| KernelSU-Next | v2.2.0 | `27933596073` | rejected during input validation |
+| KernelSU-Next official dev | v2.2.0 | `27936142485` | kernel-side SUSFS patch applied, but generic manager patch did not apply to official dev |
 
-The rejected combinations do not have a Marble-compatible official manager-side SUSFS path. Earlier exploratory KernelSU-Next `legacy-susfs` runs `27932281128` and `27932878089` failed compile/link verification and are not release-ready.
+The rejected official KernelSU-Next combinations do not have a Marble-compatible official manager-side SUSFS path. Earlier exploratory KernelSU-Next `legacy-susfs` runs `27932281128` and `27932878089` failed compile/link verification and are not release-ready. The supported KernelSU-Next SUSFS path uses the pershoot `dev-susfs` fork branch.
 
 ## Artifact Audit
 
