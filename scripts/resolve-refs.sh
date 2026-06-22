@@ -54,7 +54,12 @@ if [[ "${ENABLE_SUSFS}" == "true" ]]; then
   git clone --filter=blob:none --no-checkout "${SUSFS_REPO}" "${tmp_susfs}"
   git -C "${tmp_susfs}" checkout "${susfs_effective_ref}"
   susfs_commit="$(git -C "${tmp_susfs}" rev-parse HEAD)"
-  susfs_reported_version="$(grep -RhoE 'SUSFS_VERSION[[:space:]]+"v[0-9]+\.[0-9]+\.[0-9]+"' "${tmp_susfs}"/kernel_patches/include/linux/susfs.h "${tmp_susfs}"/kernel_patches/*/include/linux/susfs.h 2>/dev/null | head -n1 | sed -E 's/.*"(v[^"]+)".*/\1/')"
+  susfs_reported_version="$(
+    find "${tmp_susfs}/kernel_patches" -path '*/include/linux/susfs.h' -type f -print0 |
+      xargs -0 grep -hoE 'SUSFS_VERSION[[:space:]]+"v[0-9]+\.[0-9]+\.[0-9]+"' |
+      head -n1 |
+      sed -E 's/.*"(v[^"]+)".*/\1/'
+  )"
   rm -rf "${tmp_susfs}"
 
   expected="${SUSFS_EXPECTED_VERSION}"
