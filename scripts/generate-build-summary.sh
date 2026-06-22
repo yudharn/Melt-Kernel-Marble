@@ -47,10 +47,8 @@ case "${manager_name}" in
   none) manager_display="No manager" ;;
   kernelsu) manager_display="KernelSU" ;;
   kernelsu-next) manager_display="KernelSU-Next" ;;
-  kernelsu-next-susfs) manager_display="KernelSU-Next SUSFS preset" ;;
   sukisu-ultra) manager_display="SukiSU Ultra" ;;
   resukisu) manager_display="ReSukiSU" ;;
-  custom) manager_display="Custom manager" ;;
 esac
 
 {
@@ -107,7 +105,7 @@ esac
   echo "- SukiSU Ultra: https://github.com/SukiSU-Ultra/SukiSU-Ultra/releases"
   echo "- ReSukiSU: https://github.com/ReSukiSU/ReSukiSU"
   echo
-  echo "Use the manager app that matches the kernel manager selected for this build. KernelSU-Next + SUSFS builds may use a SUSFS fork for kernel integration while the manager APK should come from the official manager release unless a matching fork build is explicitly provided."
+  echo "Use the official manager app that matches the official manager source recorded above."
   echo
   echo "### Flashing Instructions"
   echo

@@ -20,26 +20,12 @@ on:
           - none
           - kernelsu
           - kernelsu-next
-          - kernelsu-next-susfs
           - sukisu-ultra
           - resukisu
-          - custom
       manager_ref:
         description: Manager branch, tag, or commit override
         required: false
         default: ""
-      custom_manager_repo:
-        description: Custom manager repo as owner/repo
-        required: false
-        default: ""
-      custom_manager_ref:
-        description: Custom manager branch, tag, or commit
-        required: false
-        default: ""
-      custom_setup_path:
-        description: Custom manager setup script path
-        required: false
-        default: kernel/setup.sh
       enable_susfs:
         description: Apply SUSFS patches
         required: true
@@ -66,15 +52,6 @@ on:
         description: Optional SUSFS_VERSION guard for custom refs
         required: false
         default: ""
-      susfs_manager_patch:
-        description: Apply SUSFS patch to manager source
-        required: true
-        type: choice
-        default: auto
-        options:
-          - auto
-          - force
-          - skip
       build_scope:
         description: Build target set
         required: true
@@ -113,15 +90,11 @@ jobs:
       SOURCE_REF: ${{ inputs.source_ref }}
       MANAGER: ${{ inputs.manager }}
       MANAGER_REF: ${{ inputs.manager_ref }}
-      CUSTOM_MANAGER_REPO: ${{ inputs.custom_manager_repo }}
-      CUSTOM_MANAGER_REF: ${{ inputs.custom_manager_ref }}
-      CUSTOM_SETUP_PATH: ${{ inputs.custom_setup_path }}
       ENABLE_SUSFS: ${{ inputs.enable_susfs }}
       SUSFS_VERSION: ${{ inputs.susfs_version }}
       SUSFS_KERNEL_BRANCH: ${{ inputs.susfs_kernel_branch }}
       SUSFS_REF: ${{ inputs.susfs_ref }}
       SUSFS_EXPECTED_VERSION: ${{ inputs.susfs_expected_version }}
-      SUSFS_MANAGER_PATCH: ${{ inputs.susfs_manager_patch }}
       BUILD_SCOPE: ${{ inputs.build_scope }}
       KERNEL_DIR: kernel-source
       CCACHE_DIR: /home/runner/.ccache
@@ -135,6 +108,9 @@ jobs:
 
       - name: Prepare builder workspace
         run: rsync -a builder/ ./
+
+      - name: Validate official manager policy
+        run: bash tests/test-manager-policy.sh
 
       - name: Validate inputs
         run: bash scripts/validate-inputs.sh

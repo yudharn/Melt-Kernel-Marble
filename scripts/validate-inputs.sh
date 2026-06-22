@@ -10,13 +10,10 @@ SUSFS_VERSION="${SUSFS_VERSION:-v2.2.0}"
 SUSFS_KERNEL_BRANCH="${SUSFS_KERNEL_BRANCH:-gki-android12-5.10}"
 SUSFS_REF="${SUSFS_REF:-}"
 SUSFS_EXPECTED_VERSION="${SUSFS_EXPECTED_VERSION:-}"
-SUSFS_MANAGER_PATCH="${SUSFS_MANAGER_PATCH:-auto}"
-CUSTOM_MANAGER_REPO="${CUSTOM_MANAGER_REPO:-}"
-CUSTOM_MANAGER_REF="${CUSTOM_MANAGER_REF:-}"
-CUSTOM_SETUP_PATH="${CUSTOM_SETUP_PATH:-kernel/setup.sh}"
+MANAGER_REF="${MANAGER_REF:-}"
 
 case "${MANAGER}" in
-  none|kernelsu|kernelsu-next|kernelsu-next-susfs|sukisu-ultra|resukisu|custom) ;;
+  none|kernelsu|kernelsu-next|sukisu-ultra|resukisu) ;;
   *) echo "::error::Unsupported manager: ${MANAGER}"; exit 1 ;;
 esac
 
@@ -45,24 +42,29 @@ if [[ "${ENABLE_SUSFS}" == "true" && "${MANAGER}" == "none" ]]; then
   exit 1
 fi
 
-if [[ "${MANAGER}" == "kernelsu-next-susfs" && "${ENABLE_SUSFS}" != "true" ]]; then
-  echo "::error::kernelsu-next-susfs preset requires ENABLE_SUSFS=true. Use kernelsu-next for non-SUSFS builds."
-  exit 1
-fi
-
 case "${SUSFS_VERSION}" in
   v2.2.0|v2.1.0|custom) ;;
   *) echo "::error::SUSFS_VERSION must be v2.2.0, v2.1.0, or custom, got ${SUSFS_VERSION}"; exit 1 ;;
 esac
 
-case "${SUSFS_MANAGER_PATCH}" in
-  auto|force|skip) ;;
-  *) echo "::error::SUSFS_MANAGER_PATCH must be auto, force, or skip, got ${SUSFS_MANAGER_PATCH}"; exit 1 ;;
-esac
-
 if [[ "${ENABLE_SUSFS}" == "true" ]]; then
-  if [[ -z "${SUSFS_KERNEL_BRANCH}" || ! "${SUSFS_KERNEL_BRANCH}" =~ ^gki-android[0-9]+-[0-9]+\.[0-9]+$ ]]; then
-    echo "::error::SUSFS_KERNEL_BRANCH must look like gki-android12-5.10, got ${SUSFS_KERNEL_BRANCH}"
+  case "${MANAGER}" in
+    kernelsu)
+      echo "::error::Official tiann/KernelSU does not currently provide a SUSFS-integrated ref compatible with this builder. Disable SUSFS or choose another official manager."
+      exit 1
+      ;;
+    kernelsu-next)
+      [[ -z "${MANAGER_REF}" || "${MANAGER_REF}" == "legacy-susfs" ]] || { echo "::error::KernelSU-Next + SUSFS requires official ref legacy-susfs"; exit 1; }
+      ;;
+    sukisu-ultra)
+      [[ -z "${MANAGER_REF}" || "${MANAGER_REF}" == "builtin" ]] || { echo "::error::SukiSU Ultra + SUSFS requires official ref builtin"; exit 1; }
+      ;;
+    resukisu)
+      [[ -z "${MANAGER_REF}" || "${MANAGER_REF}" == "main" ]] || { echo "::error::ReSukiSU + SUSFS requires official ref main"; exit 1; }
+      ;;
+  esac
+  if [[ "${SUSFS_KERNEL_BRANCH}" != "gki-android12-5.10" ]]; then
+    echo "::error::Marble requires SUSFS_KERNEL_BRANCH=gki-android12-5.10, got ${SUSFS_KERNEL_BRANCH}"
     exit 1
   fi
   if [[ "${SUSFS_VERSION}" == "custom" && -z "${SUSFS_REF}" ]]; then
@@ -75,21 +77,6 @@ if [[ "${ENABLE_SUSFS}" == "true" ]]; then
   fi
   if [[ -n "${SUSFS_EXPECTED_VERSION}" && ! "${SUSFS_EXPECTED_VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     echo "::error::SUSFS_EXPECTED_VERSION must look like v2.2.0, got ${SUSFS_EXPECTED_VERSION}"
-    exit 1
-  fi
-fi
-
-if [[ "${MANAGER}" == "custom" ]]; then
-  if [[ -z "${CUSTOM_MANAGER_REPO}" || ! "${CUSTOM_MANAGER_REPO}" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
-    echo "::error::custom manager requires CUSTOM_MANAGER_REPO as owner/repo"
-    exit 1
-  fi
-  if [[ -z "${CUSTOM_MANAGER_REF}" || ! "${CUSTOM_MANAGER_REF}" =~ ^[A-Za-z0-9._/-]+$ ]]; then
-    echo "::error::custom manager requires CUSTOM_MANAGER_REF"
-    exit 1
-  fi
-  if [[ -z "${CUSTOM_SETUP_PATH}" || "${CUSTOM_SETUP_PATH}" == /* || "${CUSTOM_SETUP_PATH}" == *".."* ]]; then
-    echo "::error::CUSTOM_SETUP_PATH must be a relative path without '..'"
     exit 1
   fi
 fi

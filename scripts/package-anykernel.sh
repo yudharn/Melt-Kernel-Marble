@@ -25,20 +25,8 @@ case "${MANAGER}" in
   none) manager_label="NoRoot" ;;
   kernelsu) manager_label="KernelSU" ;;
   kernelsu-next) manager_label="KSUNext" ;;
-  kernelsu-next-susfs) manager_label="KSUNext" ;;
   sukisu-ultra) manager_label="SukiSUUltra" ;;
   resukisu) manager_label="ReSukiSU" ;;
-  custom)
-    if [[ "${manager_repo:-}" == *"KernelSU-Next"* ]]; then
-      manager_label="KSUNext"
-    elif [[ "${manager_repo:-}" == *"SukiSU"* ]]; then
-      manager_label="SukiSUUltra"
-    elif [[ "${manager_repo:-}" == *"ReSukiSU"* ]]; then
-      manager_label="ReSukiSU"
-    else
-      manager_label="Custom"
-    fi
-    ;;
 esac
 
 manager_ref_label="${manager_ref:-${MANAGER_REF:-none}}"

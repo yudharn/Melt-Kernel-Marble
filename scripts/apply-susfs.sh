@@ -3,7 +3,6 @@ set -euo pipefail
 
 KERNEL_DIR="${KERNEL_DIR:-kernel-source}"
 ENABLE_SUSFS="${ENABLE_SUSFS:-false}"
-SUSFS_MANAGER_PATCH="${SUSFS_MANAGER_PATCH:-auto}"
 
 if [[ "${ENABLE_SUSFS}" != "true" ]]; then
   echo "SUSFS disabled"
@@ -42,37 +41,25 @@ fi
 rsync -a "${susfs_dir}/kernel_patches/fs/" fs/
 rsync -a "${susfs_dir}/kernel_patches/include/" include/
 
-manager_dir=""
-for candidate in KernelSU KernelSU-Next SukiSU-Ultra drivers/kernelsu; do
-  if [[ -d "${candidate}" ]]; then
-    manager_dir="${candidate}"
+manager_kconfig=""
+for candidate in KernelSU/kernel/Kconfig KernelSU-Next/kernel/Kconfig drivers/kernelsu/Kconfig; do
+  if [[ -f "${candidate}" ]]; then
+    manager_kconfig="${candidate}"
     break
   fi
 done
 
-if [[ -z "${manager_dir}" ]]; then
+if [[ -z "${manager_kconfig}" ]]; then
   echo "::error::Could not find manager source directory for SUSFS integration"
   exit 1
 fi
 
-manager_patch="${patch_root}/KernelSU/10_enable_susfs_for_ksu.patch"
-apply_manager_patch="${SUSFS_MANAGER_PATCH}"
-if [[ "${apply_manager_patch}" == "auto" ]]; then
-  apply_manager_patch="force"
-  if [[ "${MANAGER:-}" == "kernelsu-next-susfs" ||
-        "${manager_ref,,}" == *susfs* ||
-        "${manager_repo:-}" == "pershoot/KernelSU-Next" ]]; then
-    apply_manager_patch="skip"
-  fi
+if ! grep -q '^config KSU_SUSFS$' "${manager_kconfig}"; then
+  echo "::error::Official manager ref ${manager_repo}@${manager_ref} does not include manager-side SUSFS support"
+  exit 1
 fi
 
-if [[ "${apply_manager_patch}" == "skip" ]]; then
-  echo "Skipping SUSFS manager patch for ${manager_repo}@${manager_ref}"
-elif [[ -f "${manager_patch}" ]]; then
-  pushd "${manager_dir}" >/dev/null
-  patch -p1 < "${manager_patch}"
-  popd >/dev/null
-fi
+echo "Using manager-side SUSFS support from ${manager_repo}@${manager_ref}"
 
 popd >/dev/null
 echo "SUSFS applied from ${susfs_commit}"

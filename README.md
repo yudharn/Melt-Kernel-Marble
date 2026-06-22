@@ -15,14 +15,13 @@ The builder checks out the source fork in GitHub Actions, patches only the tempo
 |---|---|---|
 | `source_repo` | `mohdakil2426/android_kernel_xiaomi_marble` | Kernel source repo |
 | `source_ref` | `melt-rebase` | Source branch, tag, or commit |
-| `manager` | `none` | `none`, `kernelsu`, `kernelsu-next`, `kernelsu-next-susfs`, `sukisu-ultra`, `resukisu`, `custom` |
+| `manager` | `none` | `none`, `kernelsu`, `kernelsu-next`, `sukisu-ultra`, `resukisu` |
 | `manager_ref` | empty | Override manager branch, tag, or commit |
 | `enable_susfs` | `false` | Apply SUSFS patches |
 | `susfs_version` | `v2.2.0` | SUSFS preset: `v2.2.0`, `v2.1.0`, or `custom` |
 | `susfs_kernel_branch` | `gki-android12-5.10` | SUSFS patch family for Marble's 5.10 kernel |
 | `susfs_ref` | empty | SUSFS branch, tag, or commit; required only for `custom` |
 | `susfs_expected_version` | empty | Optional custom ref guard, for example `v2.1.0` |
-| `susfs_manager_patch` | `auto` | `auto`, `force`, or `skip`; use `skip` for manager branches that already include SUSFS |
 | `build_scope` | `image-only` | `image-only` or `full` |
 | `enable_ccache` | `true` | Restore and save ccache |
 | `debug_artifacts` | `false` | Upload debug files on successful builds; failed runs upload available debug files automatically |
@@ -62,11 +61,10 @@ Checked on 2026-06-22.
 |---|---|---|
 | SUSFS default | `gki-android12-5.10` | `v2.2.0` |
 | SUSFS older preset | `86114db0c49f20fa7857b8b559f3ab87cbc2d00d` | `v2.1.0`, WildKernels GKI r4 gki-android12-5.10 pin |
-| KernelSU | `main` | latest release `v3.2.4` |
-| KernelSU-Next | `dev` | latest release `v3.2.0` |
-| KernelSU-Next SUSFS preset | `pershoot/KernelSU-Next@5a8a604a9078c2fbfb50e2b0cba87b3a6f4da1c2` | CI-proven with SUSFS `v2.1.0` |
-| SukiSU Ultra | `main` | latest release `v4.1.3` |
-| ReSukiSU | `main` | no release found |
+| KernelSU | official `tiann/KernelSU@main` | SUSFS disabled until an official compatible integration exists |
+| KernelSU-Next | official `dev` / `legacy-susfs` | SUSFS automatically selects `legacy-susfs` |
+| SukiSU Ultra | official `main` / `builtin` | SUSFS automatically selects `builtin` |
+| ReSukiSU | official `main` | `main` includes manager-side SUSFS support |
 | Android kernel Clang | `clang-r416183b` | declared by `build.config.common` |
 
 ## Safe Build Order
@@ -77,16 +75,9 @@ Checked on 2026-06-22.
 4. `manager=kernelsu-next`, `enable_susfs=false`, `build_scope=image-only`
 5. `manager=sukisu-ultra`, `enable_susfs=false`, `build_scope=image-only`
 6. `manager=resukisu`, `enable_susfs=false`, `build_scope=image-only`
-7. Add `enable_susfs=true` only after the matching manager build succeeds.
+7. Test SUSFS with `kernelsu-next`, `sukisu-ultra`, or `resukisu`; leave `manager_ref` empty so the workflow selects the official compatible ref.
 
-For the proven KernelSU-Next + SUSFS path, use `manager=kernelsu-next-susfs`, `enable_susfs=true`, `susfs_version=v2.1.0`, and `susfs_manager_patch=auto`.
-
-For other SUSFS experiments, test in this order:
-
-1. `manager=kernelsu`, `enable_susfs=true`, `susfs_version=v2.1.0`
-2. `manager=sukisu-ultra`, `manager_ref=builtin`, `enable_susfs=true`, `susfs_version=v2.1.0`
-3. `manager=resukisu`, `enable_susfs=true`, `susfs_version=v2.1.0`
-4. Repeat only CI-proven combinations with `susfs_version=v2.2.0`
+The builder never selects a forked or custom manager repository. It also never applies the generic SUSFS manager patch to a drifting manager tree. Instead, it requires manager-side SUSFS support from the selected official ref, applies the SUSFS kernel patch/files, and verifies `CONFIG_KSU=y` plus `CONFIG_KSU_SUSFS=y` in the final build config.
 
 ## Flashing Warning
 

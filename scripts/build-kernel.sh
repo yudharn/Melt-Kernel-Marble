@@ -5,6 +5,8 @@ source config/marble.env
 
 KERNEL_DIR="${KERNEL_DIR:-kernel-source}"
 BUILD_SCOPE="${BUILD_SCOPE:-image-only}"
+MANAGER="${MANAGER:-none}"
+ENABLE_SUSFS="${ENABLE_SUSFS:-false}"
 JOBS="${JOBS:-$(nproc)}"
 
 pushd "${KERNEL_DIR}" >/dev/null
@@ -37,7 +39,24 @@ fi
 
 clang --version | tee "${RELEASE_DIR}/build.log"
 make O="${OUT_DIR}" ARCH="${ARCH}" LLVM=1 LLVM_IAS=1 CC="${CC}" "${DEFCONFIG}" 2>&1 | tee -a "${RELEASE_DIR}/build.log"
+
+if [[ "${MANAGER}" != "none" ]]; then
+  scripts/config --file "${OUT_DIR}/.config" -e KSU
+fi
+if [[ "${ENABLE_SUSFS}" == "true" ]]; then
+  scripts/config --file "${OUT_DIR}/.config" -e KSU_SUSFS
+fi
+
 make O="${OUT_DIR}" ARCH="${ARCH}" LLVM=1 LLVM_IAS=1 CC="${CC}" olddefconfig 2>&1 | tee -a "${RELEASE_DIR}/build.log"
+
+if [[ "${MANAGER}" != "none" ]] && ! grep -q '^CONFIG_KSU=y$' "${OUT_DIR}/.config"; then
+  echo "::error::CONFIG_KSU is not enabled in the final kernel config"
+  exit 1
+fi
+if [[ "${ENABLE_SUSFS}" == "true" ]] && ! grep -q '^CONFIG_KSU_SUSFS=y$' "${OUT_DIR}/.config"; then
+  echo "::error::CONFIG_KSU_SUSFS is not enabled in the final kernel config"
+  exit 1
+fi
 
 targets=(Image)
 if [[ "${BUILD_SCOPE}" == "full" ]]; then

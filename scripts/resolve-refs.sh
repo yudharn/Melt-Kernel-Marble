@@ -5,9 +5,6 @@ source config/marble.env
 
 MANAGER="${MANAGER:-none}"
 MANAGER_REF="${MANAGER_REF:-}"
-CUSTOM_MANAGER_REPO="${CUSTOM_MANAGER_REPO:-}"
-CUSTOM_MANAGER_REF="${CUSTOM_MANAGER_REF:-}"
-CUSTOM_SETUP_PATH="${CUSTOM_SETUP_PATH:-kernel/setup.sh}"
 ENABLE_SUSFS="${ENABLE_SUSFS:-false}"
 SUSFS_VERSION="${SUSFS_VERSION:-${SUSFS_VERSION_DEFAULT}}"
 SUSFS_KERNEL_BRANCH="${SUSFS_KERNEL_BRANCH:-${SUSFS_KERNEL_BRANCH_DEFAULT}}"
@@ -27,16 +24,28 @@ susfs_commit=""
 susfs_reported_version=""
 
 if [[ "${MANAGER}" != "none" ]]; then
-  if [[ "${MANAGER}" == "custom" ]]; then
-    manager_repo="${CUSTOM_MANAGER_REPO}"
-    manager_effective_ref="${CUSTOM_MANAGER_REF}"
-    manager_setup_path="${CUSTOM_SETUP_PATH}"
-  else
-    manager_repo="$(jq -r --arg manager "${MANAGER}" '.[$manager].repo' config/managers.json)"
-    manager_effective_ref="${MANAGER_REF:-$(jq -r --arg manager "${MANAGER}" '.[$manager].default_ref' config/managers.json)}"
-    manager_setup_path="$(jq -r --arg manager "${MANAGER}" '.[$manager].setup_path' config/managers.json)"
+  manager_repo="$(jq -r --arg manager "${MANAGER}" '.[$manager].repo' config/managers.json)"
+  manager_default_ref="$(jq -r --arg manager "${MANAGER}" '.[$manager].default_ref' config/managers.json)"
+  if [[ "${ENABLE_SUSFS}" == "true" ]]; then
+    manager_default_ref="$(jq -r --arg manager "${MANAGER}" '.[$manager].susfs_ref' config/managers.json)"
   fi
-  manager_commit="$(gh api "repos/${manager_repo}/commits/${manager_effective_ref}" --jq .sha)"
+  manager_effective_ref="${MANAGER_REF:-${manager_default_ref}}"
+  manager_setup_path="$(jq -r --arg manager "${MANAGER}" '.[$manager].setup_path' config/managers.json)"
+
+  if command -v gh >/dev/null 2>&1; then
+    manager_commit="$(gh api "repos/${manager_repo}/commits/${manager_effective_ref}" --jq .sha)"
+  else
+    manager_commit="$(git ls-remote "https://github.com/${manager_repo}.git" \
+      "refs/heads/${manager_effective_ref}" "refs/tags/${manager_effective_ref}^{}" "refs/tags/${manager_effective_ref}" |
+      awk 'NR == 1 { print $1 }')"
+    if [[ -z "${manager_commit}" && "${manager_effective_ref}" =~ ^[0-9a-fA-F]{40}$ ]]; then
+      manager_commit="${manager_effective_ref}"
+    fi
+  fi
+  if [[ -z "${manager_commit}" ]]; then
+    echo "::error::Could not resolve official manager ref ${manager_repo}@${manager_effective_ref}"
+    exit 1
+  fi
 fi
 
 if [[ "${ENABLE_SUSFS}" == "true" ]]; then
