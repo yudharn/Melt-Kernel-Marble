@@ -158,6 +158,7 @@ jobs:
           "${ANDROID_CLANG_BIN}/clang" --version
 
       - name: Restore ccache
+        id: ccache-restore
         if: ${{ inputs.enable_ccache }}
         uses: actions/cache/restore@v4
         with:
@@ -218,11 +219,11 @@ jobs:
             kernel-source/release/build.log
 
       - name: Save ccache
-        if: ${{ inputs.enable_ccache && always() }}
+        if: ${{ inputs.enable_ccache && always() && steps.ccache-restore.outputs.cache-hit != 'true' }}
         uses: actions/cache/save@v4
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: marble-builder-ccache-${{ runner.os }}-${{ inputs.source_ref }}-${{ github.sha }}
+          key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
 
       - name: Create draft release
         if: ${{ inputs.make_release && success() }}

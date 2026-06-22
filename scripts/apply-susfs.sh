@@ -29,7 +29,8 @@ if [[ ! -d "${patch_root}" ]]; then
 fi
 
 pushd "${KERNEL_DIR}" >/dev/null
-main_patch="${patch_root}/50_add_susfs_in_gki-${susfs_kernel_branch}.patch"
+patch_suffix="${susfs_kernel_branch#gki-}"
+main_patch="${patch_root}/50_add_susfs_in_gki-${patch_suffix}.patch"
 if [[ -f "${main_patch}" ]]; then
   patch -p1 < "${main_patch}"
 else
