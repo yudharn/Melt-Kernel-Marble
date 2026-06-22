@@ -109,8 +109,11 @@ jobs:
       - name: Prepare builder workspace
         run: rsync -a builder/ ./
 
-      - name: Validate official manager policy
-        run: bash tests/test-manager-policy.sh
+      - name: Validate builder policy
+        run: |
+          for test_script in tests/test-*.sh; do
+            bash "${test_script}"
+          done
 
       - name: Validate inputs
         run: bash scripts/validate-inputs.sh
