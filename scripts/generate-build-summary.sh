@@ -41,6 +41,11 @@ susfs_reported="$(get_info susfs_reported_version)"
 zip_sha="$(sha256sum "${release_dir}/${zip_name}" | awk '{print $1}')"
 image_sha="$(sha256sum "${release_dir}/Image" | awk '{print $1}')"
 zip_size="$(du -h "${release_dir}/${zip_name}" | awk '{print $1}')"
+build_date="$(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+build_id="${GITHUB_RUN_ID:-}"
+if [[ -z "${build_id}" && -n "${workflow_run}" ]]; then
+  build_id="${workflow_run##*/}"
+fi
 
 manager_display="${manager_name}"
 case "${manager_name}" in
@@ -51,8 +56,23 @@ case "${manager_name}" in
   resukisu) manager_display="ReSukiSU" ;;
 esac
 
+title_manager="${manager_display}"
+if [[ "${manager_name}" == "none" ]]; then
+  title_manager="No Root Manager"
+fi
+title_suffix=""
+if [[ "${ENABLE_SUSFS}" == "true" ]]; then
+  title_suffix=" & SUSFS ${susfs_reported:-${susfs_version}}"
+fi
+
 {
-  echo "## Marble Kernel Build"
+  echo "# Marble Kernel with ${title_manager}${title_suffix}"
+  echo
+  echo "> Build Date: ${build_date}"
+  echo "> Build ID: \`${build_id:-unknown}\`"
+  echo "> Workflow: ${workflow_run}"
+  echo
+  echo "---"
   echo
   echo "### Build Configuration"
   echo
@@ -63,6 +83,12 @@ esac
   echo "| Manager | \`${manager_display}\` |"
   echo "| SUSFS enabled | \`${ENABLE_SUSFS}\` |"
   echo "| Workflow run | ${workflow_run} |"
+  echo
+  echo "## Supported Device"
+  echo
+  echo "| Device | Codename | Kernel base | Package |"
+  echo "|---|---|---|---|"
+  echo "| Poco F5 / Redmi Note 12 Turbo | \`marble\`, \`marblein\` | \`android12-5.10\` | AnyKernel3 flashable zip |"
   echo
   echo "### Source"
   echo
@@ -84,7 +110,24 @@ esac
     echo "| Commit | \`${manager_commit}\` |"
   fi
   echo
-  echo "### SUSFS"
+  echo "## Root Management"
+  echo
+  if [[ "${manager_name}" == "none" ]]; then
+    echo "- No root manager integrated. This mode exists for baseline vanilla kernel builds and troubleshooting."
+    echo "- SUSFS is not available with \`manager=none\` because SUSFS requires manager-side KernelSU-compatible hooks."
+  else
+    echo "- Manager: \`${manager_display}\`"
+    echo "- Repository: \`${manager_repo}\`"
+    echo "- Ref: \`${manager_ref}\`"
+    echo "- Commit: \`${manager_commit}\`"
+    if [[ "${manager_name}" == "kernelsu" ]]; then
+      echo "- SUSFS policy: disabled for official KernelSU in this builder."
+    elif [[ "${manager_name}" == "kernelsu-next" && "${ENABLE_SUSFS}" == "true" ]]; then
+      echo "- SUSFS policy: normal KernelSU-Next builds use official \`dev\`; SUSFS builds use \`pershoot/KernelSU-Next@dev-susfs\`."
+    fi
+  fi
+  echo
+  echo "## SUSFS"
   echo
   if [[ "${ENABLE_SUSFS}" == "true" ]]; then
     echo "| Field | Value |"
@@ -98,23 +141,36 @@ esac
     echo "SUSFS was disabled for this build."
   fi
   echo
-  echo "### Manager Applications"
+  if [[ "${ENABLE_SUSFS}" == "true" ]]; then
+    echo "## SUSFS Features"
+    echo
+    echo "- Kernel-side SUSFS patch for \`${susfs_branch}\`."
+    echo "- Manager-side SUSFS support verified through \`CONFIG_KSU_SUSFS=y\`."
+    echo "- Path, mount, kstat, uname, cmdline/bootconfig, open redirect, and map hiding options are enabled by the selected manager Kconfig defaults."
+    echo "- SUSFS userspace module is still required on-device to configure hiding rules."
+    echo
+  fi
+  echo "## Manager Applications"
   echo
   echo "- KernelSU: https://github.com/tiann/KernelSU/releases"
   echo "- KernelSU-Next: https://github.com/KernelSU-Next/KernelSU-Next/releases"
   echo "- SukiSU Ultra: https://github.com/SukiSU-Ultra/SukiSU-Ultra/releases"
   echo "- ReSukiSU: https://github.com/ReSukiSU/ReSukiSU"
   echo
-  echo "Use the official manager app that matches the official manager source recorded above."
   echo
-  echo "### Flashing Instructions"
+  echo "Use the manager app that matches the manager family recorded above. For KernelSU-Next SUSFS builds, use a KernelSU-Next compatible manager."
   echo
-  echo "- Flash only on Poco F5 / Redmi Note 12 Turbo variants reporting \`marble\` or \`marblein\`."
-  echo "- Keep your current ROM or firmware stock \`boot.img\` before flashing."
-  echo "- The installer backs up the current active boot image to \`/sdcard/marble-kernel-backup\` before writing."
-  echo "- Flash the AnyKernel3 zip with a trusted recovery or Kernel Flasher."
+  echo "## Installation Instructions"
   echo
-  echo "### Recovery / Bootloop Instructions"
+  echo "1. Download the AnyKernel3 ZIP and matching SHA256 file."
+  echo "2. Flash only on Poco F5 / Redmi Note 12 Turbo variants reporting \`marble\` or \`marblein\`."
+  echo "3. Keep your current ROM or firmware stock \`boot.img\` before flashing."
+  echo "4. Flash the ZIP to the active slot with a trusted recovery or Kernel Flasher."
+  echo "5. The installer backs up the current active boot image to \`/sdcard/marble-kernel-backup\` before writing."
+  echo "6. Install/open the matching manager application if this is a root-manager build."
+  echo "7. Reboot and verify root/SUSFS status before using daily."
+  echo
+  echo "## Recovery / Bootloop Instructions"
   echo
   echo "If the device bootloops, flash the stock \`boot.img\` from the same ROM/firmware back to the active slot. On A/B slot issues, flash the correct stock boot image to the affected slot or both slots."
   echo
@@ -133,7 +189,24 @@ esac
   echo "| Image | \`${image_sha}\` |"
   echo "| ${zip_name} | \`${zip_sha}\` |"
   echo
-  echo "### Credits"
+  echo "## Changelog"
+  echo
+  echo "### This Release"
+  echo
+  echo "- Built Marble AnyKernel3 package for \`${manager_display}\`."
+  if [[ "${ENABLE_SUSFS}" == "true" ]]; then
+    echo "- Applied SUSFS \`${susfs_reported:-${susfs_version}}\` for \`${susfs_branch}\`."
+    echo "- Verified manager-side SUSFS support and final \`CONFIG_KSU_SUSFS=y\`."
+  else
+    echo "- Built without SUSFS."
+  fi
+  echo "- Audited flashable zip structure and generated SHA256 checksums."
+  echo
+  echo "### Previous Releases"
+  echo
+  echo "See the GitHub Actions run history and repository releases."
+  echo
+  echo "## Credits"
   echo
   echo "- Xiaomi/Poco kernel source maintainers"
   echo "- AnyKernel3 by osm0sis"

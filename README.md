@@ -27,6 +27,8 @@ The builder checks out the source fork in GitHub Actions, patches only the tempo
 | `debug_artifacts` | `false` | Upload debug files on successful builds; failed runs upload available debug files automatically |
 | `make_release` | `false` | Create a draft GitHub release |
 
+`manager=none` is a baseline/no-root build mode. It exists to test the clean kernel source, packaging, AnyKernel3 flashing, and recovery path without adding any root manager. SUSFS cannot be used with `none` because SUSFS requires manager-side KernelSU-compatible hooks.
+
 ## Artifact Layout
 
 Default successful build artifact:
@@ -66,6 +68,16 @@ Checked on 2026-06-22.
 | SukiSU Ultra | official `main` / `builtin` | SUSFS automatically selects `builtin` |
 | ReSukiSU | official `main` | `main` includes manager-side SUSFS support |
 | Android kernel Clang | `clang-r416183b` | declared by `build.config.common` |
+
+## Manager Matrix
+
+| Manager | Without SUSFS | With SUSFS | Policy |
+|---|---:|---:|---|
+| `none` | Supported | Not supported | Baseline no-root build only |
+| `kernelsu` | Supported | Not supported | Official KernelSU is kept non-SUSFS |
+| `kernelsu-next` | Supported | Supported | Official `dev` without SUSFS; `pershoot/dev-susfs` with SUSFS |
+| `sukisu-ultra` | Supported | Supported | Official `main` without SUSFS; official `builtin` with SUSFS |
+| `resukisu` | Supported | Supported | Official `main` for both |
 
 ## Safe Build Order
 
