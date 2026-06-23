@@ -142,7 +142,8 @@ jobs:
             exit 0
           fi
           archive="$(mktemp)"
-          curl -fsSL "${ANDROID_CLANG_ARCHIVE_URL}" -o "${archive}"
+          curl --retry 5 --retry-delay 5 --retry-all-errors --connect-timeout 30 \
+            -fsSL "${ANDROID_CLANG_ARCHIVE_URL}" -o "${archive}"
           echo "${ANDROID_CLANG_ARCHIVE_SHA256}  ${archive}" | sha256sum -c -
           mkdir -p "android-clang/${ANDROID_CLANG_VERSION}"
           tar -xzf "${archive}" -C "android-clang/${ANDROID_CLANG_VERSION}"

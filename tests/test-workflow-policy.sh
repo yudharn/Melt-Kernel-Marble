@@ -21,6 +21,7 @@ required_core_patterns=(
   'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
   'actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c'
   'persist-credentials: false'
+  'curl --retry 5 --retry-delay 5 --retry-all-errors --connect-timeout 30'
   'sha256sum -c'
   'compression-level: 0'
   'retention-days: 30'
