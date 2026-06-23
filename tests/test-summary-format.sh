@@ -23,6 +23,8 @@ manager=kernelsu-next
 manager_repo=pershoot/KernelSU-Next
 manager_ref=dev-susfs
 manager_commit=5a8a604a9078c2fbfb50e2b0cba87b3a6f4da1c2
+manager_tag=v3.2.0
+manager_version_code=33201
 manager_setup_path=kernel/setup.sh
 enable_susfs=true
 susfs_version=v2.2.0
@@ -30,39 +32,35 @@ susfs_kernel_branch=gki-android12-5.10
 susfs_ref=4003ecf2d01c6d13fa8edf6c4f2607365738dc3d
 susfs_commit=4003ecf2d01c6d13fa8edf6c4f2607365738dc3d
 susfs_reported_version=v2.2.0
+susfs_url=https://gitlab.com/simonpunk/susfs4ksu/-/commit/4003ecf2d01c6d13fa8edf6c4f2607365738dc3d
 INFO
 
-KERNEL_DIR="${tmp_dir}" MANAGER=kernelsu-next ENABLE_SUSFS=true BUILD_SCOPE=image-only \
+KERNEL_DIR="${tmp_dir}" MANAGER=kernelsu-next ENABLE_SUSFS=true BUILD_SCOPE=image-only GITHUB_RUN_NUMBER=49 \
   bash scripts/generate-build-summary.sh >/dev/null
 
 summary="${release_dir}/summary.md"
 
 required_patterns=(
-  '^#  Marble Kernel with KernelSU-Next & SUSFS v2.2.0$'
-  '^> Build Date: '
-  '^>  Build ID: `'
-  '^>  Workflow: '
-  '^\* \* \*$'
-  '^##  Build Configuration$'
-  '^###  SUSFS Branch Mapping$'
-  '^## ✨ Features & Capabilities$'
-  '^###  Root Management$'
-  '^### 🛡️ Security & Privacy$'
-  '^##  Manager Applications$'
-  '^### Official Manager$'
-  '^### Required Module$'
-  '^### Recommended Flasher$'
-  '^##  Installation Instructions$'
-  '^### Prerequisites$'
-  '^### Via Kernel Flasher$'
-  '^##  Changelog$'
-  '^### This Release$'
-  '^### Previous Releases$'
-  '^##  Credits$'
+  '^# 🪨 Marble Kernel$'
+  '^### Poco F5 · Redmi Note 12 Turbo$'
+  'img\.shields\.io/badge/KernelSU--Next-v3\.2\.0_%2333201-4CAF50'
+  'img\.shields\.io/badge/SUSFS-v2\.2\.0-FF6D00'
+  'Run #49'
+  '^## ⚙️ Build Configuration$'
+  '^## 🔑 Manager — KernelSU-Next$'
+  '^## 🛡️ SUSFS$'
+  '^## 📲 Installation$'
+  '^<summary><b>📋 Prerequisites</b> — expand before flashing</summary>$'
+  '^<summary><b>⚡ Flash Steps</b></summary>$'
+  '^> \[!WARNING\]$'
+  '^## 📦 Artifacts & Checksums$'
+  '^<summary><b>🔐 SHA256 Checksums</b></summary>$'
+  '^## 🙏 Credits$'
   'pershoot/KernelSU-Next'
-  'Poco F5 / Redmi Note 12 Turbo'
+  'gitlab\.com/simonpunk/susfs4ksu/-/commit/4003ecf2'
+  'Poco F5.*marblein.*Redmi Note 12 Turbo.*marble'
   'Flash the ZIP to the active slot'
-  '⚡ Built with ❤️ by the community'
+  '⚡ Built with ❤️ using \*\*GitHub Actions\*\*'
 )
 
 for pattern in "${required_patterns[@]}"; do
@@ -81,6 +79,11 @@ blocked_patterns=(
   'Performance & Networking'
   'System Features'
   'Community Managers'
+  'Features & Capabilities'
+  'Security & Privacy'
+  'Manager Applications'
+  'Changelog'
+  'Previous Releases'
 )
 
 for pattern in "${blocked_patterns[@]}"; do
