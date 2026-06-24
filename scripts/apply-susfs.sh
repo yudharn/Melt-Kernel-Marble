@@ -42,11 +42,9 @@ rsync -a "${susfs_dir}/kernel_patches/fs/" fs/
 rsync -a "${susfs_dir}/kernel_patches/include/" include/
 
 manager_kconfig=""
-manager_dir=""
 for candidate in KernelSU/kernel/Kconfig KernelSU-Next/kernel/Kconfig drivers/kernelsu/Kconfig; do
   if [[ -f "${candidate}" ]]; then
     manager_kconfig="${candidate}"
-    manager_dir="$(dirname "$(dirname "${candidate}")")"
     break
   fi
 done

@@ -37,7 +37,7 @@ if grep -q 'kernelsu-next-susfs\|"custom"' config/managers.json; then
   fail "legacy fork/custom manager choices remain selectable"
 fi
 
-if grep -q 'custom_manager_' .github/workflows/build-marble.yml; then
+if grep -q 'custom_manager_' .github/workflows/build-matrix.yml; then
   fail "custom manager workflow inputs remain selectable"
 fi
 
