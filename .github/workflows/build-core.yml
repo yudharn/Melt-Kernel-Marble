@@ -186,9 +186,11 @@ jobs:
           prefix="marble-builder-ccache-v2-${RUNNER_OS}-${RUNNER_ARCH}-${ANDROID_CLANG_VERSION}-${source_commit}"
           manager_prefix="${prefix}-${MANAGER}"
           key="${manager_prefix}-${manager_commit:-none}-${susfs_commit:-none}-${BUILD_SCOPE}-${config_hash}"
-          echo "key=${key}" >> "$GITHUB_OUTPUT"
-          echo "prefix=${prefix}" >> "$GITHUB_OUTPUT"
-          echo "manager_prefix=${manager_prefix}" >> "$GITHUB_OUTPUT"
+          {
+            echo "key=${key}"
+            echo "prefix=${prefix}"
+            echo "manager_prefix=${manager_prefix}"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Restore ccache
         id: ccache-restore
