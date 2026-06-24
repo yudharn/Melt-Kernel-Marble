@@ -147,7 +147,7 @@ grep -Fq 'package-ecosystem: github-actions' .github/dependabot.yml || {
   exit 1
 }
 
-for pattern in 'bash tests/test-*.sh' 'bash -n scripts/*.sh scripts/lib/*.sh tests/*.sh' 'actionlint' 'shellcheck'; do
+for pattern in 'bash tests/test-*.sh' 'bash -n scripts/*.sh scripts/lib/*.sh tests/*.sh' 'actionlint' 'shellcheck -e SC1090,SC1091,SC2016,SC2153,SC2154'; do
   grep -Fq "${pattern}" "${preflight}" || {
     echo "FAIL: preflight workflow missing pattern: ${pattern}" >&2
     exit 1

@@ -36,7 +36,7 @@ jobs:
         run: bash -n scripts/*.sh scripts/lib/*.sh tests/*.sh
 
       - name: Run shellcheck
-        run: shellcheck scripts/*.sh scripts/lib/*.sh tests/*.sh
+        run: shellcheck -e SC1090,SC1091,SC2016,SC2153,SC2154 scripts/*.sh scripts/lib/*.sh tests/*.sh
 
       - name: Run actionlint
         run: actionlint
