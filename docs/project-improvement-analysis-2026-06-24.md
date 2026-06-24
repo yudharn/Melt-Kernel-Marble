@@ -38,7 +38,7 @@ The next best improvements are not “make the kernel compile faster by magic.�
 - `resolved-refs.env` / `build-info.txt` are source-style key/value files; this is convenient but fragile when values can contain spaces, commas, quotes, or shell metacharacters.
 - Matrix generation still duplicates manager policy in Bash instead of deriving most of it from `config/managers.json`.
 - There is no dedicated “cheap preflight CI” workflow for workflow/script/docs changes.
-- Historical planning docs under `docs/superpowers/` still describe old debug-artifact behavior. They are not runtime files, but future readers may confuse them with current policy.
+- Historical planning docs were moved out of this repo to workspace-level `/docs/superpowers/`; they are not runtime files.
 
 ## Script usage audit
 
@@ -62,8 +62,8 @@ No unused runtime script was found. Every file under `scripts/*.sh` is called by
 
 These are not unused scripts, but stale historical docs:
 
-- `docs/superpowers/plans/2026-06-23-workflow-reliability-performance.md`
-- `docs/superpowers/specs/2026-06-23-workflow-reliability-performance-design.md`
+- `/docs/superpowers/plans/2026-06-23-workflow-reliability-performance.md`
+- `/docs/superpowers/specs/2026-06-23-workflow-reliability-performance-design.md`
 
 They still mention debug artifacts and 7-day debug retention. Since they are historical planning artifacts, the best fix is not deletion by default. Better options:
 
@@ -440,7 +440,7 @@ Risk:
 
 Current state:
 
-- Historical docs under `docs/superpowers/` still mention debug artifacts.
+- Historical docs under workspace-level `/docs/superpowers/` still mention debug artifacts.
 
 Recommendation:
 

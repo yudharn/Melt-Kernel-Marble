@@ -18,7 +18,7 @@ Checked on 2026-06-23.
 
 The workflow resolves branch, tag, and commit inputs to exact commits at run time and records them in `release/build-info.txt`. For SUSFS, the user chooses `susfs_version=v2.2.0`, `susfs_version=v2.1.0`, or `susfs_version=custom`. Custom mode uses `susfs_ref` and verifies `susfs_expected_version` when provided.
 
-Builds support official Xiaomi stock HyperOS only on Poco F5 (`marblein`) and Redmi Note 12 Turbo (`marble`). Manager artifacts use `AK3_Marble-HyperOS_<Manager>-<version>-code<code>_<SUSFS>_r<run>.zip`; a protected promotion workflow can turn one successful matrix run into a ZIP-only draft release without rebuilding.
+Builds support official Xiaomi stock HyperOS only on Poco F5 (`marblein`) and Redmi Note 12 Turbo (`marble`). Manager artifacts use `AK3_Marble-HyperOS_<Manager>-<version>-code<code>_<SUSFS>_r<run>.zip`; enabling `create_draft_release` on the matrix workflow can turn that successful run into a ZIP-only draft release without rebuilding.
 
 Manager repositories are allowlisted for normal builds. KernelSU-Next is official `KernelSU-Next/KernelSU-Next@dev` when SUSFS is disabled; when SUSFS is enabled, the workflow intentionally switches only that manager to `pershoot/KernelSU-Next@dev-susfs` because current official KernelSU-Next SUSFS paths are not Marble-compatible. Supported SUSFS paths apply only the kernel-side SUSFS patch/files and verify final Kconfig values. Official KernelSU + SUSFS remains rejected until a compatible integration exists.
 

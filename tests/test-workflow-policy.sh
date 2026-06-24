@@ -108,8 +108,41 @@ grep -Fq 'concurrency:' "${wrapper}" || {
   exit 1
 }
 
-if grep -Eq 'make_release|^[[:space:]]+release:' "${matrix}"; then
-  echo "FAIL: build workflow must not create releases" >&2
+grep -Fq 'create_draft_release:' "${matrix}" || {
+  echo "FAIL: matrix workflow does not expose the draft release input" >&2
+  exit 1
+}
+
+grep -Fq 'create_draft_release: true' "${matrix}" && {
+  echo "FAIL: draft release input must default to false" >&2
+  exit 1
+}
+
+grep -Fq 'name: Create ZIP-only draft release' "${matrix}" || {
+  echo "FAIL: matrix workflow does not create releases from successful same-run artifacts" >&2
+  exit 1
+}
+
+required_matrix_release_patterns=(
+  'inputs.create_draft_release == true'
+  "needs.build.result == 'success'"
+  "needs.aggregate-summary.result == 'success'"
+  'contents: write'
+  'bash scripts/prepare-promoted-release.sh'
+  'mapfile -t release_assets < release-assets.txt'
+  'gh release create "${tag}" "${release_assets[@]}"'
+  '--draft'
+  '--target "${GITHUB_SHA}"'
+)
+for pattern in "${required_matrix_release_patterns[@]}"; do
+  grep -Fq -- "${pattern}" "${matrix}" || {
+    echo "FAIL: matrix release job missing pattern: ${pattern}" >&2
+    exit 1
+  }
+done
+
+if grep -Eq 'make_release|environment: release-approval|build_run_id|run-id:|github-token:' "${matrix}"; then
+  echo "FAIL: matrix release flow must not use old promotion inputs or environment deployments" >&2
   exit 1
 fi
 
@@ -165,46 +198,13 @@ for pattern in 'bash tests/test-*.sh' 'bash -n scripts/*.sh scripts/lib/*.sh tes
   }
 done
 
-[[ -f "${promote}" ]] || {
-  echo "FAIL: promoted release workflow is missing" >&2
+[[ ! -e "${promote}" ]] || {
+  echo "FAIL: separate promote workflow must be removed for same-run draft releases" >&2
   exit 1
 }
 
-required_promote_patterns=(
-  'workflow_dispatch:'
-  'build_run_id:'
-  'environment: release-approval'
-  '"${GITHUB_REF}" != "refs/heads/main"'
-  'actions: read'
-  'contents: write'
-  'actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c'
-  'github-token: ${{ github.token }}'
-  'repository: ${{ github.repository }}'
-  'run-id: ${{ inputs.build_run_id }}'
-  'bash scripts/prepare-promoted-release.sh'
-  'mapfile -t release_assets < release-assets.txt'
-  'gh release create "${tag}" "${release_assets[@]}"'
-  '--draft'
-)
-for pattern in "${required_promote_patterns[@]}"; do
-  grep -Fq -- "${pattern}" "${promote}" || {
-    echo "FAIL: promote workflow missing pattern: ${pattern}" >&2
-    exit 1
-  }
-done
-
-if grep -Fq 'ref: ${{ steps.target.outputs.head_sha }}' "${promote}"; then
-  echo "FAIL: promotion must not execute older target-commit tooling with a write token" >&2
-  exit 1
-fi
-
-if grep -Eq 'release/\*\.sha256|build-info\.(txt|json).*gh release|summary\.md.*gh release' "${promote}"; then
-  echo "FAIL: promoted release must upload only manifest-selected ZIPs" >&2
-  exit 1
-fi
-
 if grep -Fq 'contents: write' "${core}"; then
-  echo "FAIL: build-core.yml should stay read-only; release writes belong in promote-release.yml" >&2
+  echo "FAIL: build-core.yml should stay read-only; release writes belong in build-matrix.yml release job" >&2
   exit 1
 fi
 

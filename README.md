@@ -66,12 +66,11 @@ GitHub Actions checks out both repos separately, applies manager and SUSFS patch
 
 ## ⚙️ Workflows
 
-Three workflows are available. `build-matrix.yml` is the only public build entrypoint: select one manager for one build or several managers for a parallel matrix build.
+Two workflows are available. `build-matrix.yml` is the only public build and draft-release entrypoint: select one manager for one build or several managers for a parallel matrix build.
 
 | Workflow | Use when |
 |---|---|
-| **Build Marble Kernel** (`build-matrix.yml`) | Select one or many managers; each gets a separate artifact and the run gets one combined summary |
-| **Promote Build to Draft Release** (`promote-release.yml`) | Promote an existing successful build after manual approval, without rebuilding |
+| **Build Marble Kernel** (`build-matrix.yml`) | Select one or many managers; each gets a separate artifact, one combined summary, and optionally one draft release |
 | **Marble Builder Preflight** (`preflight.yml`) | Cheap static checks for workflows, shell scripts, policy tests, actionlint, and shellcheck |
 
 ### `build-matrix.yml` Inputs
@@ -90,16 +89,17 @@ Three workflows are available. `build-matrix.yml` is the only public build entry
 | `source_ref` | `melt-rebase` | Kernel source branch, tag, or commit |
 | `build_scope` | `image-only` | `image-only` or `full` |
 | `enable_ccache` | `true` | Use ccache to accelerate compatible rebuilds |
+| `create_draft_release` | `false` | If enabled, create one ZIP-only draft release after all selected builds and the combined summary pass |
 
-### Promote an existing build
+### Create a draft release
 
-1. Open **Actions → Promote Build to Draft Release → Run workflow**.
-2. Enter the numeric run ID of a successful **Build Marble Kernel** run on `main`.
-3. Open the waiting deployment and select **Review deployments → Approve and deploy**.
-4. The workflow downloads that run's separate manager artifacts, verifies every checksum, recreates the combined summary, and creates one draft release.
+1. Open **Actions → Build Marble Kernel → Run workflow**.
+2. Select the manager checkboxes and normal build inputs.
+3. Enable `create_draft_release` only when you want a draft release from that same successful run.
+4. The release job waits for all selected builds and the combined summary to pass, downloads the same run's manager artifacts, verifies every checksum, and creates one draft release.
 5. Review the draft on the Releases page and publish it manually when ready.
 
-Promotion must happen before the source artifacts expire after 30 days. Draft release assets contain only clean flashable ZIPs; checksums and build metadata remain in Actions artifacts and are used internally for verification.
+This flow does not use a GitHub Environment approval, so GitHub does not create Deployment records for release approval. The manual checkbox is the release gate, and the release remains a draft until it is manually published. Draft release assets contain only clean flashable ZIPs; checksums and build metadata remain in Actions artifacts and are used internally for verification.
 
 ---
 
@@ -156,10 +156,10 @@ Last verified: **2026-06-23**
 - Matrix policy tests run once before fan-out. Disk cleanup runs only when available space is below 20 GiB.
 - Flash artifacts use zero recompression with 30-day retention.
 - Build jobs have read-only repository permission for contents. Artifact provenance attestations use GitHub's OIDC-backed attestation permission on the final ZIP.
-- Release write permission exists only in the manually approved `promote-release.yml` job. Build jobs never create releases.
+- Release write permission exists only in the conditional `build-matrix.yml` release job, which runs when `create_draft_release` is enabled and all selected builds pass. Build jobs stay read-only.
 - Duplicate manual dispatches are guarded with workflow concurrency groups to avoid piling up accidental repeated runs.
 
-Verified on **2026-06-24**: [three-manager matrix run 28081895022](https://github.com/mohdakil2426/marble-kernel-builder/actions/runs/28081895022) and [protected promotion run 28082454769](https://github.com/mohdakil2426/marble-kernel-builder/actions/runs/28082454769) passed on commit `28f3830`. All downloaded ZIP checksums matched, and draft `marble-hyperos-r10` contains only the three clean flashable ZIPs.
+Previous verification on **2026-06-24**: [three-manager matrix run 28081895022](https://github.com/mohdakil2426/marble-kernel-builder/actions/runs/28081895022) and [protected promotion run 28082454769](https://github.com/mohdakil2426/marble-kernel-builder/actions/runs/28082454769) passed on commit `28f3830`. All downloaded ZIP checksums matched, and draft `marble-hyperos-r10` contains only the three clean flashable ZIPs. The current release flow now creates the ZIP-only draft directly from the successful matrix run when `create_draft_release` is enabled.
 
 ---
 
@@ -171,7 +171,7 @@ Run these in order — verify each before proceeding to the next:
 2. Repeat `build_none` with `full` scope if full outputs are required.
 3. Select one root manager at a time with SUSFS disabled.
 4. Select `build_kernelsu_next`, `build_sukisu_ultra`, and/or `build_resukisu` with SUSFS enabled.
-5. Once verified, combine the desired managers in one matrix run and promote that exact run.
+5. Once verified, combine the desired managers in one matrix run. Enable `create_draft_release` if that successful run should also create a draft release.
 
 ---
 
