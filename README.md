@@ -159,7 +159,7 @@ Last verified: **2026-06-23**
 - Release write permission exists only in the manually approved `promote-release.yml` job. Build jobs never create releases.
 - Duplicate manual dispatches are guarded with workflow concurrency groups to avoid piling up accidental repeated runs.
 
-Verified on **2026-06-24**: [single-selection run 28079004882](https://github.com/mohdakil2426/marble-kernel-builder/actions/runs/28079004882) and [three-manager matrix run 28079006277](https://github.com/mohdakil2426/marble-kernel-builder/actions/runs/28079006277) both passed. All downloaded ZIP checksums matched; the warm KernelSU-Next build recorded a 99.87% hit rate for cacheable compiler calls.
+Verified on **2026-06-24**: [three-manager matrix run 28081895022](https://github.com/mohdakil2426/marble-kernel-builder/actions/runs/28081895022) and [protected promotion run 28082454769](https://github.com/mohdakil2426/marble-kernel-builder/actions/runs/28082454769) passed on commit `28f3830`. All downloaded ZIP checksums matched, and draft `marble-hyperos-r10` contains only the three clean flashable ZIPs.
 
 ---
 
