@@ -30,11 +30,11 @@ After approval, it:
 
 1. Queries the target run through the GitHub API.
 2. Requires the same repository, `main` branch, successful conclusion, and the matrix build workflow.
-3. Checks out the exact builder commit used by the target build.
+3. Checks out the current approved promotion tooling. The older target commit is never executed with the release token.
 4. Downloads that run's `marble-flash-*-r<original run number>` artifacts with the pinned `download-artifact` action and the workflow token.
 5. Requires each artifact to contain exactly one ZIP plus its checksum and required metadata.
 6. Verifies every SHA-256 checksum and rejects duplicate ZIP names or an empty artifact set.
-7. Recreates the combined matrix summary using the target commit's summary generator.
+7. Recreates the combined matrix summary using the current approved summary generator.
 8. Creates `marble-hyperos-r<original run number>` as a draft release targeted at the original builder commit.
 9. Uploads only the flashable `*.zip` files as release assets.
 

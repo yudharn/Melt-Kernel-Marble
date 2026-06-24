@@ -41,6 +41,7 @@ KERNEL_DIR="${tmp_dir}" MANAGER=kernelsu-next ENABLE_SUSFS=true BUILD_SCOPE=imag
 summary="${release_dir}/summary.md"
 
 required_patterns=(
+  'Official Xiaomi stock HyperOS only'
   '^# 🪨 Marble Kernel$'
   '^### Poco F5 · Redmi Note 12 Turbo$'
   'img\.shields\.io/badge/KernelSU--Next-v3\.2\.0_%2333201-4CAF50'

@@ -10,13 +10,8 @@ BUILD_SCOPE="${BUILD_SCOPE:-image-only}"
 run_number="${GITHUB_RUN_NUMBER:-local}"
 
 release_dir="${KERNEL_DIR}/${RELEASE_DIR}"
-image_path="${release_dir}/Image"
-if [[ ! -s "${image_path}" ]]; then
-  echo "::error::Cannot package without ${image_path}"
-  exit 1
-fi
-
 if [[ -f release/resolved-refs.env ]]; then
+  # shellcheck disable=SC1091
   source release/resolved-refs.env
 fi
 
@@ -25,17 +20,22 @@ case "${MANAGER}" in
   none)         manager_label="NoRoot" ;;
   kernelsu)     manager_label="KernelSU" ;;
   kernelsu-next) manager_label="KSUNext" ;;
-  sukisu-ultra) manager_label="SukiSU-Ultra" ;;
+  sukisu-ultra) manager_label="SukiSUUltra" ;;
   resukisu)     manager_label="ReSukiSU" ;;
 esac
 
-# Use version tag when available (e.g. v3.2.0), otherwise fall back to short SHA.
-manager_version="${manager_tag:-}"
+# Prefer the version printed by the manager build, then its resolved tag, then commit.
+manager_version="${manager_build_version_name:-${manager_build_tag:-${manager_tag:-}}}"
+manager_version="${manager_version%%@*}"
 if [[ -z "${manager_version}" && -n "${manager_commit:-}" ]]; then
   manager_version="${manager_commit:0:7}"
 fi
-if [[ -z "${manager_version}" ]]; then
-  manager_version="none"
+manager_version="$(printf '%s' "${manager_version}" | sed -E \
+  -e 's/[^A-Za-z0-9._-]+/-/g' -e 's/^-+//' -e 's/-+$//')"
+
+manager_code="${manager_build_version_code:-${manager_version_code:-}}"
+if [[ ! "${manager_code}" =~ ^[0-9]+$ ]]; then
+  manager_code=""
 fi
 
 susfs_label="NoSUSFS"
@@ -43,16 +43,29 @@ if [[ "${ENABLE_SUSFS}" == "true" ]]; then
   susfs_label="SUSFS-${susfs_reported_version:-${SUSFS_VERSION:-unknown}}"
 fi
 
-build_date="${BUILD_DATE:-$(date -u +%Y%m%d)}"
-
-# Final format: Marble_<Manager>-<version>_<SUSFS>_<date>_r<run>.zip
-# Example: Marble_KSUNext-v3.2.0_SUSFS-v2.2.0_20260622_r46.zip
-# Example: Marble_KernelSU-v1.0.3_NoSUSFS_20260622_r12.zip
-# Example: Marble_NoRoot_NoSUSFS_20260622_r5.zip
+# Final format: AK3_Marble-HyperOS_<Manager>-<version>-code<code>_<SUSFS>_r<run>.zip
 if [[ "${MANAGER}" == "none" ]]; then
-  zip_name="Marble_NoRoot_NoSUSFS_${build_date}_r${run_number}.zip"
+  zip_name="AK3_Marble-${SUPPORTED_ROM_LABEL}_NoRoot_NoSUSFS_r${run_number}.zip"
 else
-  zip_name="Marble_${manager_label}-${manager_version}_${susfs_label}_${build_date}_r${run_number}.zip"
+  manager_identity="${manager_label}"
+  if [[ -n "${manager_version}" ]]; then
+    manager_identity+="-${manager_version}"
+  fi
+  if [[ -n "${manager_code}" ]]; then
+    manager_identity+="-code${manager_code}"
+  fi
+  zip_name="AK3_Marble-${SUPPORTED_ROM_LABEL}_${manager_identity}_${susfs_label}_r${run_number}.zip"
+fi
+
+if [[ "${PACKAGE_NAME_ONLY:-false}" == "true" ]]; then
+  printf '%s\n' "${zip_name}"
+  exit 0
+fi
+
+image_path="${release_dir}/Image"
+if [[ ! -s "${image_path}" ]]; then
+  echo "::error::Cannot package without ${image_path}"
+  exit 1
 fi
 
 work_dir="$(mktemp -d)"

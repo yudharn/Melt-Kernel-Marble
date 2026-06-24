@@ -75,7 +75,7 @@ susfs_url="$(get_info "${first_info}" susfs_url)"
 android_clang_version="$(get_info "${first_info}" android_clang_version)"
 android_clang_commit="$(get_info "${first_info}" android_clang_commit)"
 build_date="$(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-run_number="${GITHUB_RUN_NUMBER:-}"
+run_number="${SOURCE_RUN_NUMBER:-${GITHUB_RUN_NUMBER:-}}"
 susfs_display="${susfs_reported:-${susfs_version}}"
 
 manager_count="${#artifact_dirs[@]}"
@@ -110,6 +110,7 @@ build_badge_url="https://img.shields.io/badge/Matrix-Passing-2088FF?style=for-th
   echo "| | |"
   echo "|:---|:---|"
   echo "| 📱 **Device** | Poco F5 (\`marblein\`) · Redmi Note 12 Turbo (\`marble\`) |"
+  echo "| 🟠 **ROM Support** | **Official Xiaomi stock ${SUPPORTED_ROM_LABEL} only** |"
   echo "| 🧬 **Kernel Base** | \`android12-5.10\` |"
   echo "| 🛠️ **Build Scope** | \`${BUILD_SCOPE}\` |"
   echo "| 📦 **Source** | [\`${source_ref} @ $(short_commit "${source_commit}")\`](https://github.com/${source_repo}/commit/${source_commit}) |"
@@ -204,6 +205,7 @@ build_badge_url="https://img.shields.io/badge/Matrix-Passing-2088FF?style=for-th
   echo
   echo "- 🔓 Unlocked bootloader"
   echo "- 📱 Poco F5 (\`marblein\`) or Redmi Note 12 Turbo (\`marble\`) **only**"
+  echo "- 🟠 **Official Xiaomi stock ${SUPPORTED_ROM_LABEL} only** — MIUI, AOSP, and custom ROMs are unsupported"
   echo "- 💾 Stock \`boot.img\` from the **same ROM/firmware** stored safely outside the device"
   for artifact_dir in "${artifact_dirs[@]}"; do
     build_info="${artifact_dir}/build-info.txt"
@@ -224,8 +226,8 @@ build_badge_url="https://img.shields.io/badge/Matrix-Passing-2088FF?style=for-th
   echo "<summary><b>⚡ Flash Steps</b></summary>"
   echo "<br>"
   echo
-  echo "1. Download the ZIP for the manager you want and its matching \`.sha256\` file"
-  echo "2. Verify the checksum before flashing"
+  echo "1. Download the ZIP for the manager you want"
+  echo "2. Verify it against the SHA256 shown in this summary before flashing"
   echo "3. Flash the ZIP to the active slot via **[Kernel Flasher](https://github.com/fatalcoder524/KernelFlasher/releases)**"
   echo "4. The AnyKernel3 installer will verify your device codename and **automatically back up** your current boot image to \`/sdcard/marble-kernel-backup/\` before writing"
   echo "5. After boot — install / open the matching manager app"

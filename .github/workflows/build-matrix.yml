@@ -1,4 +1,4 @@
-name: Build Marble Kernel (Matrix)
+name: Build Marble Kernel
 
 on:
   workflow_dispatch:
@@ -58,10 +58,6 @@ on:
         description: Enable ccache
         type: boolean
         default: true
-      make_release:
-        description: Create a draft GitHub release per successful build
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -131,22 +127,6 @@ jobs:
       artifact_label: ${{ matrix.label }}
       run_policy_tests: false
       publish_step_summary: false
-
-  release:
-    name: release-${{ matrix.label }}
-    needs:
-      - setup
-      - build
-    if: ${{ inputs.make_release }}
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJSON(needs.setup.outputs.matrix) }}
-    permissions:
-      contents: write
-    uses: ./.github/workflows/release-core.yml
-    with:
-      flash_artifact_name: marble-flash-${{ matrix.label }}-${{ inputs.build_scope }}-r${{ github.run_number }}
-      artifact_label: ${{ matrix.label }}
 
   aggregate-summary:
     name: Generate combined matrix summary

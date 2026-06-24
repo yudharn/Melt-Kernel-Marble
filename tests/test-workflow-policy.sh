@@ -6,7 +6,8 @@ cd "${repo_root}"
 
 core=.github/workflows/build-core.yml
 preflight=.github/workflows/preflight.yml
-release_core=.github/workflows/release-core.yml
+matrix=.github/workflows/build-matrix.yml
+promote=.github/workflows/promote-release.yml
 [[ -f "${core}" ]] || {
   echo "FAIL: reusable build workflow is missing" >&2
   exit 1
@@ -79,28 +80,38 @@ if grep -Fq 'CCACHE_COMPILERCHECK=none' scripts/build-kernel.sh; then
   exit 1
 fi
 
-for wrapper in .github/workflows/build-marble.yml .github/workflows/build-matrix.yml; do
-  grep -Fq 'uses: ./.github/workflows/build-core.yml' "${wrapper}" || {
-    echo "FAIL: ${wrapper} does not call the reusable build workflow" >&2
-    exit 1
-  }
-  if grep -Eq 'apt-get|actions/cache(@|/)' "${wrapper}"; then
-    echo "FAIL: ${wrapper} still duplicates core build setup" >&2
-    exit 1
-  fi
-  if grep -Fq 'debug_artifacts' "${wrapper}"; then
-    echo "FAIL: ${wrapper} still exposes debug artifact input" >&2
-    exit 1
-  fi
-  grep -Fq 'concurrency:' "${wrapper}" || {
-    echo "FAIL: ${wrapper} does not guard duplicate workflow runs with concurrency" >&2
-    exit 1
-  }
-  grep -Fq 'uses: ./.github/workflows/release-core.yml' "${wrapper}" || {
-    echo "FAIL: ${wrapper} does not delegate release creation to release-core.yml" >&2
-    exit 1
-  }
-done
+[[ ! -e .github/workflows/build-marble.yml ]] || {
+  echo "FAIL: obsolete single-build workflow must be removed" >&2
+  exit 1
+}
+
+[[ ! -e .github/workflows/release-core.yml ]] || {
+  echo "FAIL: obsolete same-run release workflow must be removed" >&2
+  exit 1
+}
+
+wrapper="${matrix}"
+grep -Fq 'uses: ./.github/workflows/build-core.yml' "${wrapper}" || {
+  echo "FAIL: ${wrapper} does not call the reusable build workflow" >&2
+  exit 1
+}
+if grep -Eq 'apt-get|actions/cache(@|/)' "${wrapper}"; then
+  echo "FAIL: ${wrapper} still duplicates core build setup" >&2
+  exit 1
+fi
+if grep -Fq 'debug_artifacts' "${wrapper}"; then
+  echo "FAIL: ${wrapper} still exposes debug artifact input" >&2
+  exit 1
+fi
+grep -Fq 'concurrency:' "${wrapper}" || {
+  echo "FAIL: ${wrapper} does not guard duplicate workflow runs with concurrency" >&2
+  exit 1
+}
+
+if grep -Eq 'make_release|^[[:space:]]+release:' "${matrix}"; then
+  echo "FAIL: build workflow must not create releases" >&2
+  exit 1
+fi
 
 grep -Fq 'bash scripts/generate-build-matrix.sh' .github/workflows/build-matrix.yml || {
   echo "FAIL: matrix workflow is not using the data-driven matrix generator" >&2
@@ -154,23 +165,46 @@ for pattern in 'bash tests/test-*.sh' 'bash -n scripts/*.sh scripts/lib/*.sh tes
   }
 done
 
-[[ -f "${release_core}" ]] || {
-  echo "FAIL: reusable release workflow is missing" >&2
+[[ -f "${promote}" ]] || {
+  echo "FAIL: promoted release workflow is missing" >&2
   exit 1
 }
 
-grep -Fq 'contents: write' "${release_core}" || {
-  echo "FAIL: release-core.yml does not request release write permission" >&2
-  exit 1
-}
+required_promote_patterns=(
+  'workflow_dispatch:'
+  'build_run_id:'
+  'environment: release-approval'
+  '"${GITHUB_REF}" != "refs/heads/main"'
+  'actions: read'
+  'contents: write'
+  'actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c'
+  'github-token: ${{ github.token }}'
+  'repository: ${{ github.repository }}'
+  'run-id: ${{ inputs.build_run_id }}'
+  'bash scripts/prepare-promoted-release.sh'
+  'mapfile -t release_assets < release-assets.txt'
+  'gh release create "${tag}" "${release_assets[@]}"'
+  '--draft'
+)
+for pattern in "${required_promote_patterns[@]}"; do
+  grep -Fq -- "${pattern}" "${promote}" || {
+    echo "FAIL: promote workflow missing pattern: ${pattern}" >&2
+    exit 1
+  }
+done
 
-grep -Fq 'actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c' "${release_core}" || {
-  echo "FAIL: release-core.yml does not use the pinned download artifact action" >&2
+if grep -Fq 'ref: ${{ steps.target.outputs.head_sha }}' "${promote}"; then
+  echo "FAIL: promotion must not execute older target-commit tooling with a write token" >&2
   exit 1
-}
+fi
+
+if grep -Eq 'release/\*\.sha256|build-info\.(txt|json).*gh release|summary\.md.*gh release' "${promote}"; then
+  echo "FAIL: promoted release must upload only manifest-selected ZIPs" >&2
+  exit 1
+fi
 
 if grep -Fq 'contents: write' "${core}"; then
-  echo "FAIL: build-core.yml should stay read-only; release writes belong in release-core.yml" >&2
+  echo "FAIL: build-core.yml should stay read-only; release writes belong in promote-release.yml" >&2
   exit 1
 fi
 

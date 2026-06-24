@@ -112,7 +112,7 @@ The script receives `MATRIX_ARTIFACTS_DIR`, `MATRIX_SUMMARY`, `RELEASE_ASSETS_FI
 
 - [ ] **Step 2: Implement the promotion workflow**
 
-Create manual input `build_run_id`. The protected job uses `environment: release-approval` with `actions: read` and `contents: write`. Validate the input and target run with `gh api`, require `main`, `success`, and `.github/workflows/build-matrix.yml`, then check out the target `head_sha`. Download artifacts with the pinned action using `github-token`, `repository`, `run-id`, and a pattern derived from the target `run_number`. Prepare assets, reject an existing tag/release, and call `gh release create --draft --target <head_sha> --notes-file matrix-summary.md` with only the manifest ZIP array.
+Create manual input `build_run_id`. The protected job uses `environment: release-approval` with `actions: read` and `contents: write`. Validate the input and target run with `gh api`, require `main`, `success`, and `.github/workflows/build-matrix.yml`, then check out the current approved promotion tooling. Never execute an older target commit with the release token. Download artifacts with the pinned action using `github-token`, `repository`, `run-id`, and a pattern derived from the target `run_number`. Prepare assets, reject an existing tag/release, and call `gh release create --draft --target <head_sha> --notes-file matrix-summary.md` with only the manifest ZIP array.
 
 - [ ] **Step 3: Run promotion and workflow tests**
 

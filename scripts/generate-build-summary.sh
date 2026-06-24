@@ -125,6 +125,7 @@ build_badge_url="https://img.shields.io/badge/Build-Passing-2088FF?style=for-the
   echo "| | |"
   echo "|:---|:---|"
   echo "| 📱 **Device** | Poco F5 (\`marblein\`) · Redmi Note 12 Turbo (\`marble\`) |"
+  echo "| 🟠 **ROM Support** | **Official Xiaomi stock ${SUPPORTED_ROM_LABEL} only** |"
   echo "| 🧬 **Kernel Base** | \`android12-5.10\` |"
   echo "| 🛠️ **Build Scope** | \`${BUILD_SCOPE}\` |"
   echo "| 📦 **Source** | [\`${source_ref} @ $(short_commit "${source_commit}")\`](https://github.com/${source_repo}/commit/${source_commit}) |"
@@ -197,6 +198,7 @@ build_badge_url="https://img.shields.io/badge/Build-Passing-2088FF?style=for-the
   echo
   echo "- 🔓 Unlocked bootloader"
   echo "- 📱 Poco F5 (\`marblein\`) or Redmi Note 12 Turbo (\`marble\`) **only**"
+  echo "- 🟠 **Official Xiaomi stock ${SUPPORTED_ROM_LABEL} only** — MIUI, AOSP, and custom ROMs are unsupported"
   echo "- 💾 Stock \`boot.img\` from the **same ROM/firmware** stored safely outside the device"
   if [[ "${manager_name}" != "none" && -n "${manager_app_url}" ]]; then
     echo "- 📦 [${manager_display} manager app](${manager_app_url})"
@@ -211,8 +213,8 @@ build_badge_url="https://img.shields.io/badge/Build-Passing-2088FF?style=for-the
   echo "<summary><b>⚡ Flash Steps</b></summary>"
   echo "<br>"
   echo
-  echo "1. Download \`${zip_name}\` and its \`.sha256\` file"
-  echo "2. Verify the checksum before flashing"
+  echo "1. Download \`${zip_name}\`"
+  echo "2. Verify it against the SHA256 shown in this summary before flashing"
   echo "3. Flash the ZIP to the active slot via **[Kernel Flasher](https://github.com/fatalcoder524/KernelFlasher/releases)**"
   echo "4. The AnyKernel3 installer will verify your device codename and **automatically back up** your current boot image to \`/sdcard/marble-kernel-backup/\` before writing"
   if [[ "${manager_name}" != "none" ]]; then
