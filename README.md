@@ -88,6 +88,7 @@ Two workflows are available. `build-matrix.yml` is the only public build and dra
 | `source_repo` | `mohdakil2426/android_kernel_xiaomi_marble` | Kernel source repository |
 | `source_ref` | `melt-rebase` | Kernel source branch, tag, or commit |
 | `build_scope` | `image-only` | `image-only` or `full` |
+| `toolchain` | `android-r416183b` | Compiler toolchain: Android r416183b default, or experimental LLVM 22.1.8 |
 | `enable_ccache` | `true` | Use ccache to accelerate compatible rebuilds |
 | `create_draft_release` | `false` | If enabled, create one ZIP-only draft release after all selected builds and the combined summary pass |
 
@@ -144,6 +145,7 @@ Last verified: **2026-06-23**
 | ReSukiSU | `ReSukiSU/ReSukiSU@main` | Built-in SUSFS support |
 | Android kernel Clang | `clang-r416183b` | Declared by `build.config.common` |
 | Android Clang source | `master-kernel-build-2021` | `6e3223f76384455acde43affde3df0ea9df66c0d` |
+| LLVM experimental | `22.1.8` | Optional workflow toolchain, verified with SHA-256 before use |
 | AnyKernel3 | pinned commit | `dca9dc370838d919d56c1f59ec78b27a14a72c68` |
 
 ---
@@ -152,6 +154,7 @@ Last verified: **2026-06-23**
 
 - Official GitHub actions are pinned to immutable commits and checked weekly by Dependabot.
 - Android Clang is fetched from the official Git repository using a partial clone plus sparse checkout, then verified against its pinned commit before use.
+- Experimental LLVM 22.1.8 is downloaded from the official LLVM GitHub release only when selected, verified by SHA-256, and cached separately from Android Clang.
 - Ccache is capped at 2 GiB per build identity and keyed by compiler, source, manager, SUSFS, scope, and build configuration; compiler validation uses content checks.
 - Matrix policy tests run once before fan-out. Disk cleanup runs only when available space is below 20 GiB.
 - Flash artifacts use zero recompression with 30-day retention.
