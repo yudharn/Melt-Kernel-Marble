@@ -26,7 +26,6 @@ required_core_patterns=(
   'ANDROID_CLANG_REF_COMMIT'
   'compression-level: 0'
   'retention-days: 30'
-  'retention-days: 7'
   'marble-builder-ccache-v2-'
   'runner_image_version='
   'ccache_hit='
@@ -41,6 +40,11 @@ for pattern in "${required_core_patterns[@]}"; do
     exit 1
   }
 done
+
+if grep -Eq 'debug_artifacts|marble-debug-|Upload debug artifacts|retention-days: 7' "${core}"; then
+  echo "FAIL: debug artifact upload path must stay removed" >&2
+  exit 1
+fi
 
 grep -Fq 'CCACHE_COMPILERCHECK=content' scripts/build-kernel.sh || {
   echo "FAIL: ccache compiler validation is not content-based" >&2
@@ -64,6 +68,10 @@ for wrapper in .github/workflows/build-marble.yml .github/workflows/build-matrix
   }
   if grep -Eq 'apt-get|actions/cache(@|/)' "${wrapper}"; then
     echo "FAIL: ${wrapper} still duplicates core build setup" >&2
+    exit 1
+  fi
+  if grep -Fq 'debug_artifacts' "${wrapper}"; then
+    echo "FAIL: ${wrapper} still exposes debug artifact input" >&2
     exit 1
   fi
 done

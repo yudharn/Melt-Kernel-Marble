@@ -39,9 +39,6 @@ on:
       enable_ccache:
         required: true
         type: boolean
-      debug_artifacts:
-        required: true
-        type: boolean
       make_release:
         required: true
         type: boolean
@@ -266,22 +263,6 @@ jobs:
             kernel-source/release/zip-audit.txt
             kernel-source/release/ccache-stats.txt
             kernel-source/release/zip-name.env
-
-      - name: Upload debug artifacts
-        if: ${{ !cancelled() && (inputs.debug_artifacts || failure()) }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: marble-debug-${{ inputs.artifact_label }}-${{ inputs.build_scope }}-r${{ github.run_number }}
-          if-no-files-found: warn
-          retention-days: 7
-          compression-level: 0
-          path: |
-            kernel-source/release/Image
-            kernel-source/release/System.map
-            kernel-source/release/vmlinux
-            kernel-source/release/dtbs.tar.gz
-            kernel-source/release/modules.tar.gz
-            kernel-source/release/build.log
 
       - name: Save ccache
         if: ${{ inputs.enable_ccache && success() && steps.ccache-restore.outputs.cache-hit != 'true' }}

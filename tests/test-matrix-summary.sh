@@ -68,8 +68,8 @@ make_artifact "${tmp_dir}/marble-resukisu-susfs-image-only-r5" \
   resukisu ReSukiSU/ReSukiSU main 88e7f51c3840436b982276ec35bf2876cfec2713 '' 34989 'v4.1.0-d0f59d06@ReSukiSU' \
   Marble_ReSukiSU-88e7f51_SUSFS-v2.2.0_20260622_r5.zip resukisu
 
-mkdir -p "${tmp_dir}/marble-debug-resukisu-susfs-image-only-r5"
-printf '%s\n' 'debug-only artifact without flash metadata' > "${tmp_dir}/marble-debug-resukisu-susfs-image-only-r5/build.log"
+mkdir -p "${tmp_dir}/unrelated-artifact-r5"
+printf '%s\n' 'artifact without flash metadata' > "${tmp_dir}/unrelated-artifact-r5/build.log"
 
 MATRIX_ARTIFACTS_DIR="${tmp_dir}" MATRIX_SUMMARY="${tmp_dir}/matrix-summary.md" \
   BUILD_SCOPE=image-only GITHUB_RUN_NUMBER=5 \

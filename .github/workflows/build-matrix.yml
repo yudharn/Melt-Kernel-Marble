@@ -58,10 +58,6 @@ on:
         description: Enable ccache
         type: boolean
         default: true
-      debug_artifacts:
-        description: Upload debug artifacts on successful builds
-        type: boolean
-        default: false
       make_release:
         description: Create a draft GitHub release per successful build
         type: boolean
@@ -156,7 +152,6 @@ jobs:
       susfs_expected_version: ""
       build_scope: ${{ inputs.build_scope }}
       enable_ccache: ${{ inputs.enable_ccache }}
-      debug_artifacts: ${{ inputs.debug_artifacts }}
       make_release: ${{ inputs.make_release }}
       artifact_label: ${{ matrix.label }}
       run_policy_tests: false

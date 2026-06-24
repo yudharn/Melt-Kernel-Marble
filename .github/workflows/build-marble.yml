@@ -65,11 +65,6 @@ on:
         required: true
         type: boolean
         default: true
-      debug_artifacts:
-        description: Upload debug artifacts on successful builds
-        required: true
-        type: boolean
-        default: false
       make_release:
         description: Create draft GitHub release
         required: true
@@ -96,7 +91,6 @@ jobs:
       susfs_expected_version: ${{ inputs.susfs_expected_version }}
       build_scope: ${{ inputs.build_scope }}
       enable_ccache: ${{ inputs.enable_ccache }}
-      debug_artifacts: ${{ inputs.debug_artifacts }}
       make_release: ${{ inputs.make_release }}
       artifact_label: ${{ inputs.manager }}${{ inputs.enable_susfs && '-susfs' || '' }}
       run_policy_tests: true

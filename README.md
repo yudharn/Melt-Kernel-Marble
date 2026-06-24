@@ -68,7 +68,7 @@ Two workflows are available. Both call the same reusable `build-core.yml` pipeli
 
 | Workflow | Use when |
 |---|---|
-| **Build Marble Kernel** (`build-marble.yml`) | Single manager build — full control over all inputs, custom refs, debugging |
+| **Build Marble Kernel** (`build-marble.yml`) | Single manager build — full control over all inputs and custom refs |
 | **Build Marble Kernel (Matrix)** (`build-matrix.yml`) | Multi-manager release run — select multiple managers via checkboxes, all build in parallel with separate artifacts |
 
 ### `build-marble.yml` Inputs
@@ -86,7 +86,6 @@ Two workflows are available. Both call the same reusable `build-core.yml` pipeli
 | `susfs_expected_version` | *(empty)* | Optional version guard for custom refs |
 | `build_scope` | `image-only` | `image-only` or `full` (includes modules and dtbs) |
 | `enable_ccache` | `true` | Use ccache to speed up rebuilds |
-| `debug_artifacts` | `false` | Upload debug files on success; failed runs always upload available debug files |
 | `make_release` | `false` | Create a draft GitHub release |
 
 ### `build-matrix.yml` Inputs
@@ -110,7 +109,7 @@ Two workflows are available. Both call the same reusable `build-core.yml` pipeli
 ### ✅ Successful build artifact
 
 ```
-marble-<label>-<scope>-r<run>/
+marble-flash-<label>-<scope>-r<run>/
 ├─ Marble_<Manager>-<version>_<SUSFS>_<date>_r<run>.zip
 ├─ Marble_<Manager>-<version>_<SUSFS>_<date>_r<run>.zip.sha256
 ├─ build-info.txt      ← exact resolved refs and workflow metadata
@@ -129,20 +128,6 @@ Marble_NoRoot_NoSUSFS_20260622_r5.zip
 ```
 
 > Version tag (e.g. `v3.2.0`) is used when the manager commit has a tag. Falls back to a 7-character SHA otherwise.
-
-### 🐛 Debug artifact (on failure or `debug_artifacts=true`)
-
-```
-marble-debug-<label>-<scope>-r<run>/
-├─ Image
-├─ System.map
-├─ vmlinux
-├─ dtbs.tar.gz
-├─ modules.tar.gz
-└─ build.log
-```
-
----
 
 ## 🔒 Verified Defaults
 
@@ -169,7 +154,7 @@ Last verified: **2026-06-23**
 - Android Clang is fetched from the official Git repository using a partial clone plus sparse checkout, then verified against its pinned commit before use.
 - Ccache is capped at 2 GiB per build identity and keyed by compiler, source, manager, SUSFS, scope, and build configuration; compiler validation uses content checks.
 - Matrix policy tests run once before fan-out. Disk cleanup runs only when available space is below 20 GiB.
-- Flash artifacts use zero recompression with 30-day retention; debug artifacts use 7-day retention.
+- Flash artifacts use zero recompression with 30-day retention.
 - Build jobs have read-only repository permission. Write permission exists only in the optional release job.
 
 Verified on **2026-06-23**: [single build run 28001500296](https://github.com/mohdakil2426/marble-kernel-builder/actions/runs/28001500296) and [three-manager matrix run 28002300749](https://github.com/mohdakil2426/marble-kernel-builder/actions/runs/28002300749) both passed. All three matrix ZIP audits and downloaded SHA-256 files matched; the warm KernelSU-Next build recorded a 99.87% hit rate for cacheable compiler calls.
