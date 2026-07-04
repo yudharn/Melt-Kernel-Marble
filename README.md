@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🪨 Marble Kernel Builder
+# 🪨 Melt Rebase Marble Kernel Builder
 
 **CI-driven AnyKernel3 kernel builder for Poco F5 / Redmi Note 12 Turbo**
 
