@@ -15,8 +15,8 @@ mkdir -p "${OUT_DIR}" "${RELEASE_DIR}"
 
 export ARCH
 export SUBARCH="${ARCH}"
-export KBUILD_BUILD_USER="${KBUILD_BUILD_USER:-marble}"
-export KBUILD_BUILD_HOST="${KBUILD_BUILD_HOST:-github-actions}"
+export KBUILD_BUILD_USER="${KBUILD_BUILD_USER:-Rebuild By}"
+export KBUILD_BUILD_HOST="${KBUILD_BUILD_HOST:-Yudha@Yudharn}"
 export CCACHE_DIR="${CCACHE_DIR:-${HOME}/.ccache}"
 export CCACHE_COMPILERCHECK=content
 export CCACHE_NOHASHDIR=true
