@@ -1,5 +1,5 @@
 properties() { '
-kernel.string=Marble Kernel for Poco F5 / Redmi Note 12 Turbo
+kernel.string=Melt Rebase v2 Rebuild by @Yudharn with Github action
 do.devicecheck=1
 do.modules=0
 do.systemless=1
