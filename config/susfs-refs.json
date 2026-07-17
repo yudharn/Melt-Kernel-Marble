@@ -2,7 +2,7 @@
   "gki-android12-5.10": {
     "v2.2.0": {
       "ref": "heads",
-      "commit": "heads",
+      "commit": "",
       "notes": "Pinned commit proven by Marble CI with official SukiSU Ultra and ReSukiSU on 2026-06-22."
     },
     "v2.1.0": {
